@@ -1,25 +1,24 @@
-import { Router } from "express";
+import { Router } from 'express';
 
-import { SESSION_COOKIE_NAME, sessionCookieOptions } from "./cookie";
-import { credentials } from "./credentials";
-import { createSession } from "./session-store";
+import { SESSION_COOKIE_NAME, sessionCookieOptions } from './cookie.js';
+import { createSession } from './session-store.js';
 
 export const authRoutes = Router();
 
-authRoutes.post("/login", (req, res) => {
-	const { username, password } = req.body;
+authRoutes.post('/login', (req, res) => {
+  const { username, password } = req.body;
 
-	if (!username || !password) {
-		return res.status(401).json({ error: "Username and password required" });
-	}
+  if (!username || !password) {
+    return res.status(401).json({ error: 'Username and password required' });
+  }
 
-	if (username !== credentials.username || password !== credentials.password) {
-		return res.status(401).json({ error: "Invalid credentials" });
-	}
+  if (username !== credentials.username || password !== credentials.password) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
 
-	const sessionId = createSession(username);
+  const sessionId = createSession(username);
 
-	res.cookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
+  res.cookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
 
-	return res.status(204).end();
+  return res.status(204).end();
 });
