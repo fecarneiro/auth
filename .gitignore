@@ -1,4 +1,38 @@
-node_modules
-dist
+# dependencies
+node_modules/
+
+# builds
+dist/
+public/dist/
+
+# env
+.env
+.env.*
+!.env.example
+
+# logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# cache
+.turbo/
+.cache/
+.parcel-cache/
+.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# OS/editor
+.DS_Store
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+
+# Tools
 AGENTS.md
 tempCodeRunner*
