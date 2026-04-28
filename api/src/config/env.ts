@@ -13,7 +13,7 @@ function required(name: string) {
 }
 
 export const env = {
-  NODE_ENV: process.env.NODE_ENV ?? 'development',
-  PORT: process.env.PORT ?? 3000,
   DATABASE_URL: required('DATABASE_URL'),
+  NODE_ENV: process.env.NODE_ENV ?? 'development',
+  PORT: Number(process.env.PORT ?? 3000),
 };
