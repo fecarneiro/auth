@@ -2,10 +2,11 @@
   "name": "auth",
   "private": true,
   "scripts": {
-    "dev": "pnpm --parallel --filter @auth/api --filter @auth/web dev",
+    "dev": "pnpm --parallel --filter api --filter web dev",
     "build": "pnpm -r build"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.13"
+    "@biomejs/biome": "2.4.13",
+    "tsx": "^4.21.0"
   }
 }
