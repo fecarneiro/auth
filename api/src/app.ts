@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { authRoutes } from './auth/auth.routes.js';
+import { authRoutes } from './infrastructure/http/auth.routes.js';
 
 export const app = express();
 
