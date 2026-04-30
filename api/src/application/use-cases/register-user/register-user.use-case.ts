@@ -5,7 +5,7 @@ import type { PasswordCredentialRepositoryPort } from '../../ports/password-cred
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js';
 import { EmailAlreadyInUseError } from './register-user.errors.js';
 
-interface RegisterUserInput {
+export interface RegisterUserInput {
   email: string;
   name: string;
   password: string;
