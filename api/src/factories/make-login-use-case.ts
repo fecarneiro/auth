@@ -1,4 +1,4 @@
-import { LoginUseCase } from '../application/login.use-case.js';
+import { LoginUseCase } from '../application/use-cases/login/login.use-case.js';
 import { BcryptHashService } from '../infrastructure/crypto/bcrypt-hash.service.js';
 import { DrizzlePasswordCredentialRepository } from '../infrastructure/database/drizzle-password-credential.repository.js';
 import { DrizzleUserRepository } from '../infrastructure/database/drizzle-user.repository.js';

@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
-import { User } from '../domain/user.entity.js';
+import { User } from '../../../domain/user.entity.js';
+import type { HashServicePort } from '../../ports/hash.service.port.js';
+import type { PasswordCredentialRepositoryPort } from '../../ports/password-credential.repository.port.js';
+import type { UserRepositoryPort } from '../../ports/user.repository.port.js';
 import { InvalidCredentialsError } from './login.errors.js';
 import {
   type LoginInput,
   type LoginOutput,
   LoginUseCase,
 } from './login.use-case.js';
-import type { HashServicePort } from './ports/hash.service.port.js';
-import type { PasswordCredentialRepositoryPort } from './ports/password-credential.repository.port.js';
-import type { UserRepositoryPort } from './ports/user.repository.port.js';
 
 describe('LoginUseCase', () => {
   it('should login successfully with valid credentials', async () => {
@@ -60,9 +60,7 @@ describe('LoginUseCase', () => {
     const result = await loginUseCase.execute(input);
 
     expect(result).toEqual(expectedOutput);
-    expect(userRepository.findByEmail).toHaveBeenCalledWith(
-      'user@example.com',
-    );
+    expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com');
     expect(passwordCredentialRepository.findByUserId).toHaveBeenCalledWith(
       'user-1',
     );
@@ -113,9 +111,7 @@ describe('LoginUseCase', () => {
     await expect(loginUseCase.execute(input)).rejects.toThrow(
       InvalidCredentialsError,
     );
-    expect(userRepository.findByEmail).toHaveBeenCalledWith(
-      'user@example.com',
-    );
+    expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com');
     expect(passwordCredentialRepository.findByUserId).toHaveBeenCalledWith(
       'user-1',
     );
@@ -202,9 +198,7 @@ describe('LoginUseCase', () => {
       InvalidCredentialsError,
     );
 
-    expect(userRepository.findByEmail).toHaveBeenCalledWith(
-      'user@example.com',
-    );
+    expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com');
     expect(passwordCredentialRepository.findByUserId).toHaveBeenCalledWith(
       'user-1',
     );

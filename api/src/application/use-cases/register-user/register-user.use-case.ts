@@ -1,8 +1,8 @@
-import { User } from '../domain/user.entity.js';
-import type { HashServicePort } from './ports/hash.service.port.js';
-import type { IdGeneratorPort } from './ports/id-generator.port.js';
-import type { PasswordCredentialRepositoryPort } from './ports/password-credential.repository.port.js';
-import type { UserRepositoryPort } from './ports/user.repository.port.js';
+import { User } from '../../../domain/user.entity.js';
+import type { HashServicePort } from '../../ports/hash.service.port.js';
+import type { IdGeneratorPort } from '../../ports/id-generator.port.js';
+import type { PasswordCredentialRepositoryPort } from '../../ports/password-credential.repository.port.js';
+import type { UserRepositoryPort } from '../../ports/user.repository.port.js';
 import { EmailAlreadyInUseError } from './register-user.errors.js';
 
 interface RegisterUserInput {

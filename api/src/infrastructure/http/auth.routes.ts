@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { InvalidCredentialsError } from '../../application/login.errors.js';
-import type { LoginUseCase } from '../../application/login.use-case.js';
+import { InvalidCredentialsError } from '../../application/use-cases/login/login.errors.js';
+import type { LoginUseCase } from '../../application/use-cases/login/login.use-case.js';
 
 export function createAuthRouter(loginUseCase: LoginUseCase) {
   const router = Router();
