@@ -1,24 +1,27 @@
 import { Router } from 'express';
+import { InvalidCredentialsError } from '../../application/auth.errors.js';
+import type { LoginUseCase } from '../../application/login.use-case.js';
 
-import { SESSION_COOKIE_NAME, sessionCookieOptions } from '../auth/cookie.js';
-import { createSession } from '../auth/session-store.js';
+export function createAuthRouter(loginUseCase: LoginUseCase) {
+  const router = Router();
 
-export const authRoutes = Router();
+  router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
 
-authRoutes.post('/login', (req, res) => {
-  const { username, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password required' });
+    }
 
-  if (!username || !password) {
-    return res.status(401).json({ error: 'Username and password required' });
-  }
+    try {
+      const result = await loginUseCase.execute({ email, password });
+      return res.status(200).json(result);
+    } catch (error) {
+      if (error instanceof InvalidCredentialsError) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
-  if (username !== credentials.username || password !== credentials.password) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
-
-  const sessionId = createSession(username);
-
-  res.cookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
-
-  return res.status(204).end();
-});
+  return router;
+}
