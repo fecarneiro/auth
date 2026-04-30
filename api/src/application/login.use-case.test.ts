@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { User } from '../domain/user.entity.js';
+import { InvalidCredentialsError } from './auth.errors.js';
 import {
   type LoginInput,
   type LoginOutput,
@@ -19,24 +20,24 @@ describe('LoginUseCase', () => {
     });
 
     const userRepository: UserRepositoryPort = {
-      findByEmail: vi.fn().mockResolvedValue(user),
+      findByEmail: vi.fn(async () => user),
       findById: vi.fn(),
     };
 
-    const passwordCredentialsRepository: PasswordCredentialRepositoryPort = {
-      findByUserId: vi.fn().mockResolvedValue({
+    const passwordCredentialRepository: PasswordCredentialRepositoryPort = {
+      findByUserId: vi.fn(async () => ({
         userId: 'user-1',
         passwordHash: 'hashed-password',
-      }),
+      })),
     };
 
     const hashService: HashServicePort = {
-      compare: vi.fn().mockResolvedValue(true),
+      compare: vi.fn(async () => true),
     };
 
     const loginUseCase = new LoginUseCase(
       userRepository,
-      passwordCredentialsRepository,
+      passwordCredentialRepository,
       hashService,
     );
 
@@ -56,5 +57,119 @@ describe('LoginUseCase', () => {
     const result = await loginUseCase.execute(input);
 
     expect(result).toEqual(expectedOutput);
+  });
+
+  it('should fail login with invalid password', async () => {
+    const user = User.restore({
+      id: 'user-1',
+      email: 'user@example.com',
+      name: 'User Example',
+      createdAt: new Date('2026-01-01'),
+    });
+
+    const userRepository: UserRepositoryPort = {
+      findByEmail: vi.fn(async () => user),
+      findById: vi.fn(),
+    };
+
+    const passwordCredentialRepository: PasswordCredentialRepositoryPort = {
+      findByUserId: vi.fn(async () => ({
+        userId: 'user-1',
+        passwordHash: 'hashed-password',
+      })),
+    };
+
+    const hashService: HashServicePort = {
+      compare: vi.fn(async () => false),
+    };
+
+    const loginUseCase = new LoginUseCase(
+      userRepository,
+      passwordCredentialRepository,
+      hashService,
+    );
+
+    const input: LoginInput = {
+      email: 'user@example.com',
+      password: 'wrong-password',
+    };
+
+    await expect(loginUseCase.execute(input)).rejects.toThrow(
+      InvalidCredentialsError,
+    );
+  });
+
+  it('should fail login with unknown email', async () => {
+    const userRepository: UserRepositoryPort = {
+      findByEmail: vi.fn(async () => null),
+      findById: vi.fn(),
+    };
+
+    const passwordCredentialRepository: PasswordCredentialRepositoryPort = {
+      findByUserId: vi.fn(),
+    };
+
+    const hashService: HashServicePort = {
+      compare: vi.fn(),
+    };
+
+    const loginUseCase = new LoginUseCase(
+      userRepository,
+      passwordCredentialRepository,
+      hashService,
+    );
+
+    const input: LoginInput = {
+      email: 'invalid@example.com',
+      password: 'plain-password',
+    };
+
+    await expect(loginUseCase.execute(input)).rejects.toThrow(
+      InvalidCredentialsError,
+    );
+    expect(passwordCredentialRepository.findByUserId).not.toHaveBeenCalled();
+    expect(hashService.compare).not.toHaveBeenCalled();
+  });
+
+  it('should fail login when password credential is not found', async () => {
+    const user = User.restore({
+      id: 'user-1',
+      email: 'user@example.com',
+      name: 'User Example',
+      createdAt: new Date('2026-01-01'),
+    });
+
+    const userRepository: UserRepositoryPort = {
+      findByEmail: vi.fn(async () => user),
+      findById: vi.fn(),
+    };
+
+    const passwordCredentialRepository: PasswordCredentialRepositoryPort = {
+      findByUserId: vi.fn(async () => null),
+    };
+
+    const hashService: HashServicePort = {
+      compare: vi.fn(),
+    };
+
+    const loginUseCase = new LoginUseCase(
+      userRepository,
+      passwordCredentialRepository,
+      hashService,
+    );
+
+    const input: LoginInput = {
+      email: 'user@example.com',
+      password: 'plain-password',
+    };
+
+    await expect(loginUseCase.execute(input)).rejects.toThrow(
+      InvalidCredentialsError,
+    );
+
+    expect(passwordCredentialRepository.findByUserId).toHaveBeenCalledWith(
+      'user-1',
+    );
+    expect(hashService.compare).not.toHaveBeenCalled();
   });
 });
