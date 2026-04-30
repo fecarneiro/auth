@@ -1,4 +1,4 @@
-import { InvalidCredentialsError } from './auth.errors.js';
+import { InvalidCredentialsError } from './login.errors.js';
 import type { HashServicePort } from './ports/hash.service.port.js';
 import type { PasswordCredentialRepositoryPort } from './ports/password-credential.repository.port.js';
 import type { UserRepositoryPort } from './ports/user.repository.port.js';
