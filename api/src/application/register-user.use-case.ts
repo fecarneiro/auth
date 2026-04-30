@@ -1,0 +1,44 @@
+import { User } from '../domain/user.entity.js';
+import type { HashServicePort } from './ports/hash.service.port.js';
+import type { IdGeneratorPort } from './ports/id-generator.port.js';
+import type { PasswordCredentialRepositoryPort } from './ports/password-credential.repository.port.js';
+import type { UserRepositoryPort } from './ports/user.repository.port.js';
+import { EmailAlreadyInUseError } from './register-user.errors.js';
+
+interface RegisterUserInput {
+  email: string;
+  name: string;
+  password: string;
+}
+
+export class RegisterUserUseCase {
+  constructor(
+    private readonly idGenerator: IdGeneratorPort,
+    private readonly userRepository: UserRepositoryPort,
+    private readonly hashService: HashServicePort,
+    private readonly passwordCredentialRepository: PasswordCredentialRepositoryPort,
+  ) {}
+
+  async execute(input: RegisterUserInput): Promise<void> {
+    const existingUser = await this.userRepository.findByEmail(input.email);
+
+    if (existingUser) throw new EmailAlreadyInUseError();
+
+    const id = this.idGenerator.generate();
+
+    const user = User.create({
+      id: id,
+      email: input.email,
+      name: input.name,
+    });
+
+    const hashedPassword = await this.hashService.hash(input.password);
+
+    await this.userRepository.save(user);
+
+    await this.passwordCredentialRepository.save({
+      userId: id,
+      passwordHash: hashedPassword,
+    });
+  }
+}

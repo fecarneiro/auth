@@ -1,5 +1,9 @@
+export interface PasswordCredential {
+  userId: string;
+  passwordHash: string;
+}
+
 export interface PasswordCredentialRepositoryPort {
-  findByUserId(
-    userId: string,
-  ): Promise<{ userId: string; passwordHash: string } | null>;
+  findByUserId(userId: string): Promise<PasswordCredential | null>;
+  save(credential: PasswordCredential): Promise<void>;
 }
