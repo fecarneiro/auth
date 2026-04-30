@@ -18,9 +18,9 @@ export interface LoginOutput {
 
 export class LoginUseCase {
   constructor(
-    private userRepository: UserRepositoryPort,
-    private passwordCredentialRepository: PasswordCredentialRepositoryPort,
-    private hashService: HashServicePort,
+    private readonly userRepository: UserRepositoryPort,
+    private readonly passwordCredentialRepository: PasswordCredentialRepositoryPort,
+    private readonly hashService: HashServicePort,
   ) {}
 
   async execute(input: LoginInput): Promise<LoginOutput> {
@@ -28,18 +28,17 @@ export class LoginUseCase {
 
     if (!user) throw new InvalidCredentialsError();
 
-    const credential = await this.passwordCredentialRepository.findByUserId(
-      user.id,
-    );
+    const passwordCredential =
+      await this.passwordCredentialRepository.findByUserId(user.id);
 
-    if (!credential) throw new InvalidCredentialsError();
+    if (!passwordCredential) throw new InvalidCredentialsError();
 
-    const isPasswordValid = await this.hashService.compare(
+    const passwordMatches = await this.hashService.compare(
       input.password,
-      credential.passwordHash,
+      passwordCredential.passwordHash,
     );
 
-    if (!isPasswordValid) throw new InvalidCredentialsError();
+    if (!passwordMatches) throw new InvalidCredentialsError();
 
     return {
       user: {
