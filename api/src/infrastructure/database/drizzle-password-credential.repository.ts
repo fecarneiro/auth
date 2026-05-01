@@ -1,30 +1,40 @@
 import 'dotenv/config';
 import { eq } from 'drizzle-orm';
-import type { PasswordCredentialRepositoryPort } from '../../application/ports/password-credential.repository.port.js';
+import type {
+  PasswordCredential,
+  PasswordCredentialRepositoryPort,
+} from '../../application/ports/password-credential.repository.port.js';
 import { db } from './db.js';
-import { usersTable } from './schema.js';
+import { passwordCredentialsTable } from './password-credential.schema.js';
 
 export class DrizzlePasswordCredentialRepository
   implements PasswordCredentialRepositoryPort
 {
+  async save(credential: PasswordCredential): Promise<void> {
+    await db.insert(passwordCredentialsTable).values({
+      userId: credential.userId,
+      passwordHash: credential.passwordHash,
+    });
+  }
+
   async findByUserId(
     userId: string,
   ): Promise<{ userId: string; passwordHash: string } | null> {
     const [row] = await db
       .select({
-        id: usersTable.id,
-        passwordHash: usersTable.passwordHash,
+        userId: passwordCredentialsTable.userId,
+        passwordHash: passwordCredentialsTable.passwordHash,
       })
-      .from(usersTable)
-      .where(eq(usersTable.id, userId))
+      .from(passwordCredentialsTable)
+      .where(eq(passwordCredentialsTable.userId, userId))
       .limit(1);
 
     if (!row) return null;
 
-    if (!row?.passwordHash) return null;
+    if (!row?.passwordHash || !row?.userId) return null;
 
     return {
-      userId: row.id,
+      userId: row.userId,
       passwordHash: row.passwordHash,
     };
   }

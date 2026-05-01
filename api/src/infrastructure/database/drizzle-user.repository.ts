@@ -3,9 +3,18 @@ import { eq } from 'drizzle-orm';
 import type { UserRepositoryPort } from '../../application/ports/user.repository.port.js';
 import { User } from '../../domain/user.entity.js';
 import { db } from './db.js';
-import { usersTable } from './schema.js';
+import { usersTable } from './user.schema.js';
 
 export class DrizzleUserRepository implements UserRepositoryPort {
+  async save(user: User) {
+    await db.insert(usersTable).values({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      createdAt: user.createdAt,
+    });
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     const [row] = await db
       .select({

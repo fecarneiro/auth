@@ -4,6 +4,6 @@ export interface PasswordCredential {
 }
 
 export interface PasswordCredentialRepositoryPort {
-  findByUserId(userId: string): Promise<PasswordCredential | null>;
   save(credential: PasswordCredential): Promise<void>;
+  findByUserId(userId: string): Promise<PasswordCredential | null>;
 }
