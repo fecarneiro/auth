@@ -11,6 +11,15 @@ export interface RegisterUserInput {
   password: string;
 }
 
+export interface RegisterUserOutput {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    createdAt: Date;
+  };
+}
+
 export class RegisterUserUseCase {
   constructor(
     private readonly idGenerator: IdGeneratorPort,
@@ -19,7 +28,7 @@ export class RegisterUserUseCase {
     private readonly passwordCredentialRepository: PasswordCredentialRepositoryPort,
   ) {}
 
-  async execute(input: RegisterUserInput): Promise<void> {
+  async execute(input: RegisterUserInput): Promise<RegisterUserOutput> {
     const existingUser = await this.userRepository.findByEmail(input.email);
 
     if (existingUser) throw new EmailAlreadyInUseError();
@@ -40,5 +49,14 @@ export class RegisterUserUseCase {
       userId: id,
       passwordHash: hashedPassword,
     });
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        createdAt: user.createdAt,
+      },
+    };
   }
 }
