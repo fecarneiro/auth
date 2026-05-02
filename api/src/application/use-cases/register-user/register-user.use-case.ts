@@ -27,7 +27,7 @@ export class RegisterUserUseCase {
     const id = this.idGenerator.generate();
 
     const user = User.create({
-      id: id,
+      id,
       email: input.email,
       name: input.name,
     });
