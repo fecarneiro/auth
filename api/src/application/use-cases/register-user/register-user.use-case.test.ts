@@ -4,10 +4,7 @@ import type { HashServicePort } from '../../ports/hash.service.port.js';
 import type { IdGeneratorPort } from '../../ports/id-generator.port.js';
 import type { PasswordCredentialRepositoryPort } from '../../ports/password-credential.repository.port.js';
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js';
-import {
-  type RegisterUserInput,
-  RegisterUserUseCase,
-} from './register-user.use-case.js';
+import { type RegisterUserInput, RegisterUserUseCase } from './register-user.use-case.js';
 
 function makeSut() {
   const idGenerator: IdGeneratorPort = {
@@ -47,8 +44,7 @@ function makeSut() {
 
 describe('RegisterUserUseCase', () => {
   it('should successfully register a new user', async () => {
-    const { sut, userRepository, hashService, passwordCredentialRepository } =
-      makeSut();
+    const { sut, userRepository, hashService, passwordCredentialRepository } = makeSut();
 
     const input: RegisterUserInput = {
       email: 'user@example.com',
@@ -87,8 +83,7 @@ describe('RegisterUserUseCase', () => {
   });
 
   it('should fail when email is invalid', async () => {
-    const { sut, userRepository, hashService, passwordCredentialRepository } =
-      makeSut();
+    const { sut, userRepository, hashService, passwordCredentialRepository } = makeSut();
 
     const input: RegisterUserInput = {
       email: 'wrongexample.com',
