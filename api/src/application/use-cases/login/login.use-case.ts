@@ -24,12 +24,12 @@ export class LoginUseCase {
   ) {}
 
   async execute(input: LoginInput): Promise<LoginOutput> {
-    const user = await this.userRepository.findByEmail(input.email);
+    const email = input.email.trim().toLowerCase();
+    const user = await this.userRepository.findByEmail(email);
 
     if (!user) throw new InvalidCredentialsError();
 
-    const passwordCredential =
-      await this.passwordCredentialRepository.findByUserId(user.id);
+    const passwordCredential = await this.passwordCredentialRepository.findByUserId(user.id);
 
     if (!passwordCredential) throw new InvalidCredentialsError();
 

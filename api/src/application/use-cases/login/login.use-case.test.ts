@@ -4,204 +4,130 @@ import type { HashServicePort } from '../../ports/hash.service.port.js';
 import type { PasswordCredentialRepositoryPort } from '../../ports/password-credential.repository.port.js';
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js';
 import { InvalidCredentialsError } from './login.errors.js';
-import {
-  type LoginInput,
-  type LoginOutput,
-  LoginUseCase,
-} from './login.use-case.js';
+import { type LoginInput, LoginUseCase } from './login.use-case.js';
+
+function makeSut() {
+  const user = User.restore({
+    id: 'user-1',
+    email: 'user@example.com',
+    name: 'User Example',
+    createdAt: new Date('2026-01-01'),
+  });
+
+  const userRepository: UserRepositoryPort = {
+    findByEmail: vi.fn(async () => user),
+    findById: vi.fn(),
+    save: vi.fn(),
+  };
+
+  const passwordCredentialRepository: PasswordCredentialRepositoryPort = {
+    findByUserId: vi.fn(async () => ({
+      userId: 'user-1',
+      passwordHash: 'hashed-password',
+    })),
+    save: vi.fn(),
+  };
+
+  const hashService: HashServicePort = {
+    hash: vi.fn(),
+    compare: vi.fn(async () => true),
+  };
+
+  const sut = new LoginUseCase(userRepository, passwordCredentialRepository, hashService);
+
+  return {
+    sut,
+    user,
+    userRepository,
+    passwordCredentialRepository,
+    hashService,
+  };
+}
 
 describe('LoginUseCase', () => {
   it('should login successfully with valid credentials', async () => {
-    const user = User.restore({
-      id: 'user-1',
-      email: 'user@example.com',
-      name: 'User Example',
-      createdAt: new Date('2026-01-01'),
-    });
-
-    const userRepository: UserRepositoryPort = {
-      findByEmail: vi.fn(async () => user),
-      findById: vi.fn(),
-      save: vi.fn(),
-    };
-
-    const passwordCredentialRepository: PasswordCredentialRepositoryPort = {
-      findByUserId: vi.fn(async () => ({
-        userId: 'user-1',
-        passwordHash: 'hashed-password',
-      })),
-      save: vi.fn(),
-    };
-
-    const hashService: HashServicePort = {
-      hash: vi.fn(),
-      compare: vi.fn(async () => true),
-    };
-
-    const loginUseCase = new LoginUseCase(
-      userRepository,
-      passwordCredentialRepository,
-      hashService,
-    );
+    const { sut, userRepository, passwordCredentialRepository, hashService } = makeSut();
 
     const input: LoginInput = {
       email: 'user@example.com',
       password: 'plain-password',
     };
 
-    const expectedOutput: LoginOutput = {
+    const output = await sut.execute(input);
+
+    expect(output).toEqual({
       user: {
         id: 'user-1',
         email: 'user@example.com',
         name: 'User Example',
       },
-    };
+    });
 
-    const result = await loginUseCase.execute(input);
-
-    expect(result).toEqual(expectedOutput);
     expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com');
-    expect(passwordCredentialRepository.findByUserId).toHaveBeenCalledWith(
-      'user-1',
-    );
-    expect(hashService.compare).toHaveBeenCalledWith(
-      'plain-password',
-      'hashed-password',
-    );
+    expect(passwordCredentialRepository.findByUserId).toHaveBeenCalledWith('user-1');
+    expect(hashService.compare).toHaveBeenCalledWith('plain-password', 'hashed-password');
   });
 
   it('should fail login with invalid password', async () => {
-    const user = User.restore({
-      id: 'user-1',
-      email: 'user@example.com',
-      name: 'User Example',
-      createdAt: new Date('2026-01-01'),
-    });
+    const { sut, userRepository, passwordCredentialRepository, hashService } = makeSut();
 
-    const userRepository: UserRepositoryPort = {
-      findByEmail: vi.fn(async () => user),
-      findById: vi.fn(),
-      save: vi.fn(),
-    };
-
-    const passwordCredentialRepository: PasswordCredentialRepositoryPort = {
-      findByUserId: vi.fn(async () => ({
-        userId: 'user-1',
-        passwordHash: 'hashed-password',
-      })),
-      save: vi.fn(),
-    };
-
-    const hashService: HashServicePort = {
-      compare: vi.fn(async () => false),
-      hash: vi.fn(),
-    };
-
-    const loginUseCase = new LoginUseCase(
-      userRepository,
-      passwordCredentialRepository,
-      hashService,
-    );
+    vi.mocked(hashService.compare).mockResolvedValueOnce(false);
 
     const input: LoginInput = {
       email: 'user@example.com',
       password: 'wrong-password',
     };
 
-    await expect(loginUseCase.execute(input)).rejects.toThrow(
-      InvalidCredentialsError,
-    );
+    await expect(sut.execute(input)).rejects.toThrow(InvalidCredentialsError);
+
     expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com');
-    expect(passwordCredentialRepository.findByUserId).toHaveBeenCalledWith(
-      'user-1',
-    );
-    expect(hashService.compare).toHaveBeenCalledWith(
-      'wrong-password',
-      'hashed-password',
-    );
+    expect(passwordCredentialRepository.findByUserId).toHaveBeenCalledWith('user-1');
+    expect(hashService.compare).toHaveBeenCalledWith('wrong-password', 'hashed-password');
   });
 
   it('should fail login with unknown email', async () => {
-    const userRepository: UserRepositoryPort = {
-      findByEmail: vi.fn(async () => null),
-      findById: vi.fn(),
-      save: vi.fn(),
-    };
+    const { sut, userRepository, passwordCredentialRepository, hashService } = makeSut();
 
-    const passwordCredentialRepository: PasswordCredentialRepositoryPort = {
-      findByUserId: vi.fn(),
-      save: vi.fn(),
-    };
-
-    const hashService: HashServicePort = {
-      compare: vi.fn(),
-      hash: vi.fn(),
-    };
-
-    const loginUseCase = new LoginUseCase(
-      userRepository,
-      passwordCredentialRepository,
-      hashService,
-    );
+    vi.mocked(userRepository.findByEmail).mockResolvedValueOnce(null);
 
     const input: LoginInput = {
       email: 'invalid@example.com',
       password: 'plain-password',
     };
 
-    await expect(loginUseCase.execute(input)).rejects.toThrow(
-      InvalidCredentialsError,
-    );
-    expect(userRepository.findByEmail).toHaveBeenCalledWith(
-      'invalid@example.com',
-    );
+    await expect(sut.execute(input)).rejects.toThrow(InvalidCredentialsError);
+
+    expect(userRepository.findByEmail).toHaveBeenCalledWith('invalid@example.com');
     expect(passwordCredentialRepository.findByUserId).not.toHaveBeenCalled();
     expect(hashService.compare).not.toHaveBeenCalled();
   });
 
   it('should fail login when password credential is not found', async () => {
-    const user = User.restore({
-      id: 'user-1',
-      email: 'user@example.com',
-      name: 'User Example',
-      createdAt: new Date('2026-01-01'),
-    });
+    const { sut, userRepository, passwordCredentialRepository, hashService } = makeSut();
 
-    const userRepository: UserRepositoryPort = {
-      findByEmail: vi.fn(async () => user),
-      findById: vi.fn(),
-      save: vi.fn(),
-    };
-
-    const passwordCredentialRepository: PasswordCredentialRepositoryPort = {
-      findByUserId: vi.fn(async () => null),
-      save: vi.fn(),
-    };
-
-    const hashService: HashServicePort = {
-      compare: vi.fn(),
-      hash: vi.fn(),
-    };
-
-    const loginUseCase = new LoginUseCase(
-      userRepository,
-      passwordCredentialRepository,
-      hashService,
-    );
-
+    vi.mocked(passwordCredentialRepository.findByUserId).mockResolvedValueOnce(null);
     const input: LoginInput = {
       email: 'user@example.com',
       password: 'plain-password',
     };
 
-    await expect(loginUseCase.execute(input)).rejects.toThrow(
-      InvalidCredentialsError,
-    );
+    await expect(sut.execute(input)).rejects.toThrow(InvalidCredentialsError);
 
     expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com');
-    expect(passwordCredentialRepository.findByUserId).toHaveBeenCalledWith(
-      'user-1',
-    );
+    expect(passwordCredentialRepository.findByUserId).toHaveBeenCalledWith('user-1');
     expect(hashService.compare).not.toHaveBeenCalled();
+  });
+
+  it('should normalize email before finding user', async () => {
+    const { sut, userRepository } = makeSut();
+
+    const input: LoginInput = {
+      email: 'useR@example.COM',
+      password: 'plain-password',
+    };
+
+    await sut.execute(input);
+
+    expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com');
   });
 });
