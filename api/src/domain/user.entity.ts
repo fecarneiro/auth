@@ -22,7 +22,7 @@ export class User {
   ) {}
 
   static create(props: CreateUserProps): User {
-    const email = props.email.toLowerCase().trim();
+    const email = props.email.trim().toLowerCase();
     const name = props.name.trim();
 
     if (!email.includes('@')) throw new InvalidEmailError();
