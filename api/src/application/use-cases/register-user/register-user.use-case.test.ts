@@ -16,7 +16,7 @@ function makeSut() {
   const userRepository: UserRepositoryPort = {
     findByEmail: vi.fn(async () => null),
     findById: vi.fn(),
-    save: vi.fn(async () => {}),
+    save: vi.fn(async () => null),
   };
 
   const hashService: HashServicePort = {

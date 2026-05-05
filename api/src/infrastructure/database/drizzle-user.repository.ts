@@ -6,13 +6,22 @@ import { db } from './db.js';
 import { usersTable } from './user.schema.js';
 
 export class DrizzleUserRepository implements UserRepositoryPort {
-  async save(user: User) {
-    await db.insert(usersTable).values({
+  async save(user: User): Promise<User | null> {
+    const newUser = await db.insert(usersTable).values({
       id: user.id,
       email: user.email,
       name: user.name,
       createdAt: user.createdAt,
     });
+
+    if (!newUser) return null;
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      createdAt: user.createdAt,
+    };
   }
 
   async findByEmail(email: string): Promise<User | null> {

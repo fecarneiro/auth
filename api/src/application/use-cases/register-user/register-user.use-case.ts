@@ -21,12 +21,22 @@ export interface RegisterUserOutput {
 }
 
 export class RegisterUserUseCase {
+  private readonly idGenerator: IdGeneratorPort;
+  private readonly userRepository: UserRepositoryPort;
+  private readonly hashService: HashServicePort;
+  private readonly passwordCredentialRepository: PasswordCredentialRepositoryPort;
+
   constructor(
-    private readonly idGenerator: IdGeneratorPort,
-    private readonly userRepository: UserRepositoryPort,
-    private readonly hashService: HashServicePort,
-    private readonly passwordCredentialRepository: PasswordCredentialRepositoryPort,
-  ) {}
+    idGenerator: IdGeneratorPort,
+    userRepository: UserRepositoryPort,
+    hashService: HashServicePort,
+    passwordCredentialRepository: PasswordCredentialRepositoryPort,
+  ) {
+    this.idGenerator = idGenerator;
+    this.userRepository = userRepository;
+    this.hashService = hashService;
+    this.passwordCredentialRepository = passwordCredentialRepository;
+  }
 
   async execute(input: RegisterUserInput): Promise<RegisterUserOutput> {
     const email = input.email.trim().toLowerCase();
