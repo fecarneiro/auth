@@ -5,13 +5,8 @@ import { DrizzleUserRepository } from '../infrastructure/database/drizzle-user.r
 
 export function makeLoginUseCase() {
   const userRepository = new DrizzleUserRepository();
-  const passwordCredentialRepository =
-    new DrizzlePasswordCredentialRepository();
+  const passwordCredentialRepository = new DrizzlePasswordCredentialRepository();
   const hashService = new BcryptHashService();
 
-  return new LoginUseCase(
-    userRepository,
-    passwordCredentialRepository,
-    hashService,
-  );
+  return new LoginUseCase(userRepository, passwordCredentialRepository, hashService);
 }

@@ -1,6 +1,6 @@
 import express from 'express';
 import { makeLoginUseCase } from './factories/make-login-use-case.js';
-import { createAuthRouter } from './infrastructure/http/auth.routes.js';
+import { createAuthRouter } from './infrastructure/http/routes/auth.routes.js';
 
 const loginUseCase = makeLoginUseCase();
 

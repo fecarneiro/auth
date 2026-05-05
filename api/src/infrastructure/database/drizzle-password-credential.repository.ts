@@ -7,9 +7,7 @@ import type {
 import { db } from './db.js';
 import { passwordCredentialsTable } from './password-credential.schema.js';
 
-export class DrizzlePasswordCredentialRepository
-  implements PasswordCredentialRepositoryPort
-{
+export class DrizzlePasswordCredentialRepository implements PasswordCredentialRepositoryPort {
   async save(credential: PasswordCredential): Promise<void> {
     await db.insert(passwordCredentialsTable).values({
       userId: credential.userId,
@@ -17,9 +15,7 @@ export class DrizzlePasswordCredentialRepository
     });
   }
 
-  async findByUserId(
-    userId: string,
-  ): Promise<{ userId: string; passwordHash: string } | null> {
+  async findByUserId(userId: string): Promise<{ userId: string; passwordHash: string } | null> {
     const [row] = await db
       .select({
         userId: passwordCredentialsTable.userId,
