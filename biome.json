@@ -20,7 +20,18 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "style": {
+        "useReadonlyClassProperties": "warn",
+        "noParameterProperties": "warn",
+        "useConsistentMemberAccessibility": "warn"
+      },
+      "suspicious": {
+        "noExplicitAny": "warn"
+      },
+      "correctness": {
+        "noUnusedPrivateClassMembers": "warn"
+      }
     }
   },
   "assist": {

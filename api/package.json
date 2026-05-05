@@ -12,7 +12,8 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "biome": "pnpm exec biome check --write"
   },
   "packageManager": "pnpm@10.33.0",
   "dependencies": {
