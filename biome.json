@@ -31,6 +31,9 @@
       },
       "correctness": {
         "noUnusedPrivateClassMembers": "warn"
+      },
+      "nursery": {
+        "noFloatingPromises": "error"
       }
     }
   },
