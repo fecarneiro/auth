@@ -3,9 +3,9 @@ import { eq } from 'drizzle-orm';
 import type {
   PasswordCredential,
   PasswordCredentialRepositoryPort,
-} from '../../application/ports/password-credential.repository.port.js';
-import { db } from './db.js';
-import { passwordCredentialsTable } from './password-credential.schema.js';
+} from '../../../application/ports/password-credential.repository.port.js';
+import { db } from '../db.js';
+import { passwordCredentialsTable } from '../schema/password-credential.schema.js';
 
 export class DrizzlePasswordCredentialRepository implements PasswordCredentialRepositoryPort {
   async save(credential: PasswordCredential): Promise<void> {

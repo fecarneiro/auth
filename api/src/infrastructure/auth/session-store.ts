@@ -1,23 +1,23 @@
-interface Session {
-	id: string;
-	username: string;
-	createdAt: Date;
-}
+// interface Session {
+// 	id: string;
+// 	username: string;
+// 	createdAt: Date;
+// }
 
-const sessions = new Map<string, Session>();
+// const sessions = new Map<string, Session>();
 
-export function createSession(username: string) {
-	const session = {
-		id: crypto.randomUUID(),
-		username,
-		createdAt: new Date(),
-	};
+// export function createSession(username: string) {
+// 	const session = {
+// 		id: crypto.randomUUID(),
+// 		username,
+// 		createdAt: new Date(),
+// 	};
 
-	sessions.set(session.id, session);
+// 	sessions.set(session.id, session);
 
-	return session.id;
-}
+// 	return session.id;
+// }
 
-createSession("felipe");
+// createSession("felipe");
 
-console.log(sessions);
+// console.log(sessions);

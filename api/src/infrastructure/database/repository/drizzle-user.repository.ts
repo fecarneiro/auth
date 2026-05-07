@@ -1,9 +1,9 @@
 import 'dotenv/config';
 import { eq } from 'drizzle-orm';
-import type { UserRepositoryPort } from '../../application/ports/user.repository.port.js';
-import { User } from '../../domain/user.entity.js';
-import { db } from './db.js';
-import { usersTable } from './user.schema.js';
+import type { UserRepositoryPort } from '../../../application/ports/user.repository.port.js';
+import { User } from '../../../domain/user.entity.js';
+import { db } from '../db.js';
+import { usersTable } from '../schema/user.schema.js';
 
 export class DrizzleUserRepository implements UserRepositoryPort {
   async save(user: User): Promise<User | null> {

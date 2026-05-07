@@ -41,7 +41,6 @@ export class RegisterUserUseCase {
   async execute(input: RegisterUserInput): Promise<RegisterUserOutput> {
     const email = input.email.trim().toLowerCase();
     const existingUser = await this.userRepository.findByEmail(email);
-
     if (existingUser) throw new EmailAlreadyInUseError();
 
     const id = this.idGenerator.generate();
