@@ -5,13 +5,13 @@ import type { PasswordCredentialRepositoryPort } from '../../ports/password-cred
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { EmailAlreadyInUseError } from './register-user.errors.js'
 
-export interface RegisterUserInput {
+export interface RegisterUserWithPasswordInput {
   email: string
   name: string
   password: string
 }
 
-export interface RegisterUserOutput {
+export interface RegisterUserWithPasswordOutput {
   user: {
     id: string
     email: string
@@ -38,7 +38,9 @@ export class RegisterUserWithPasswordUseCase {
     this.passwordCredentialRepository = passwordCredentialRepository
   }
 
-  async execute(input: RegisterUserInput): Promise<RegisterUserOutput> {
+  async execute(
+    input: RegisterUserWithPasswordInput,
+  ): Promise<RegisterUserWithPasswordOutput> {
     const email = input.email.trim().toLowerCase()
     const existingUser = await this.userRepository.findByEmail(email)
     if (existingUser) throw new EmailAlreadyInUseError()
@@ -52,7 +54,6 @@ export class RegisterUserWithPasswordUseCase {
     })
 
     const hashedPassword = await this.hashService.hash(input.password)
-
     await this.userRepository.save(user)
 
     await this.passwordCredentialRepository.save({

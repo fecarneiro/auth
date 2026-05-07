@@ -7,7 +7,7 @@ import type { PasswordCredentialRepositoryPort } from '../../ports/password-cred
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { EmailAlreadyInUseError } from './register-user.errors.js'
 import {
-  type RegisterUserInput,
+  type RegisterUserWithPasswordInput,
   RegisterUserWithPasswordUseCase,
 } from './register-user.use-case.js'
 
@@ -52,7 +52,7 @@ describe('RegisterUserWithPasswordUseCase', () => {
     const { sut, userRepository, hashService, passwordCredentialRepository } =
       makeSut()
 
-    const input: RegisterUserInput = {
+    const input: RegisterUserWithPasswordInput = {
       email: 'user@example.com',
       name: 'User Example',
       password: 'password123',
@@ -92,7 +92,7 @@ describe('RegisterUserWithPasswordUseCase', () => {
     const { sut, userRepository, hashService, passwordCredentialRepository } =
       makeSut()
 
-    const input: RegisterUserInput = {
+    const input: RegisterUserWithPasswordInput = {
       email: 'wrongexample.com',
       name: 'User Example',
       password: 'password123',
@@ -123,7 +123,7 @@ describe('RegisterUserWithPasswordUseCase', () => {
 
     vi.mocked(userRepository.findByEmail).mockResolvedValueOnce(existingUser)
 
-    const input: RegisterUserInput = {
+    const input: RegisterUserWithPasswordInput = {
       email: 'user@example.com',
       name: 'User Example',
       password: 'password123',
@@ -140,7 +140,7 @@ describe('RegisterUserWithPasswordUseCase', () => {
   it('should normalize email before checking if user already exists', async () => {
     const { sut, userRepository } = makeSut()
 
-    const input: RegisterUserInput = {
+    const input: RegisterUserWithPasswordInput = {
       email: 'usEr@EXample.com',
       name: 'User Example',
       password: 'password123',
