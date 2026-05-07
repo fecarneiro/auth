@@ -20,7 +20,7 @@ export interface RegisterUserOutput {
   }
 }
 
-export class RegisterUserUseCase {
+export class RegisterUserWithPasswordUseCase {
   private readonly idGenerator: IdGeneratorPort
   private readonly userRepository: UserRepositoryPort
   private readonly hashService: HashServicePort

@@ -1,15 +1,18 @@
 import type { Request, Response } from 'express'
 import { Router } from 'express'
 import type { LoginUseCase } from '../../../application/use-cases/login/login.use-case.js'
-import type { RegisterUserUseCase } from '../../../application/use-cases/register-user/register-user.use-case.js'
+import type { RegisterUserWithPasswordUseCase } from '../../../application/use-cases/register-user/register-user.use-case.js'
 import { AuthController } from '../controllers/auth.controller.js'
 
 export function createAuthRouter(
-  registerUserUseCase: RegisterUserUseCase,
+  RegisterUserWithPasswordUseCase: RegisterUserWithPasswordUseCase,
   loginUseCase: LoginUseCase,
 ) {
   const router = Router()
-  const controller = new AuthController(registerUserUseCase, loginUseCase)
+  const controller = new AuthController(
+    RegisterUserWithPasswordUseCase,
+    loginUseCase,
+  )
 
   router.post('/register', (req: Request, res: Response) => {
     return controller.register(req, res)

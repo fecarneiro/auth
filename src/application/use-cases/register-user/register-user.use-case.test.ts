@@ -8,7 +8,7 @@ import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { EmailAlreadyInUseError } from './register-user.errors.js'
 import {
   type RegisterUserInput,
-  RegisterUserUseCase,
+  RegisterUserWithPasswordUseCase,
 } from './register-user.use-case.js'
 
 function makeSut() {
@@ -32,7 +32,7 @@ function makeSut() {
     save: vi.fn(async () => {}),
   }
 
-  const sut = new RegisterUserUseCase(
+  const sut = new RegisterUserWithPasswordUseCase(
     idGenerator,
     userRepository,
     hashService,
@@ -47,7 +47,7 @@ function makeSut() {
   }
 }
 
-describe('RegisterUserUseCase', () => {
+describe('RegisterUserWithPasswordUseCase', () => {
   it('should successfully register a new user', async () => {
     const { sut, userRepository, hashService, passwordCredentialRepository } =
       makeSut()
