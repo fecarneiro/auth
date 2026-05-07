@@ -1,28 +1,22 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "rootDir": "src",
-    "outDir": "dist",
-    "lib": [
-      "ES2022"
-    ],
-    "types": [
-      "node"
-    ],
-    "strict": true,
-    "noImplicitOverride": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+  "$schema": "https://www.schemastore.org/tsconfig",
+  "_version": "24.0.0",
 
-    "noEmitOnError": true,
+  "compilerOptions": {
+    "lib": [
+      "es2024",
+      "ESNext.Array",
+      "ESNext.Collection",
+      "ESNext.Error",
+      "ESNext.Iterator",
+      "ESNext.Promise"
+    ],
+    "module": "nodenext",
+    "target": "es2024",
+
+    "strict": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "sourceMap": true
-  },
-  "include": [
-    "src"
-  ]
+    "moduleResolution": "node16"
+  }
 }

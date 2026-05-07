@@ -1,7 +1,10 @@
-import { InvalidCredentialsError } from '../../../application/use-cases/login/login.errors.js';
-import { EmailAlreadyInUseError } from '../../../application/use-cases/register-user/register-user.errors.js';
-import { InvalidEmailError, InvalidNameError } from '../../../domain/user.errors.js';
-import { AppError } from './app-error.js';
+import { InvalidCredentialsError } from '../../../application/use-cases/login/login.errors.js'
+import { EmailAlreadyInUseError } from '../../../application/use-cases/register-user/register-user.errors.js'
+import {
+  InvalidEmailError,
+  InvalidNameError,
+} from '../../../domain/user.errors.js'
+import { AppError } from './app-error.js'
 
 const httpStatusCode = {
   OK: 200,
@@ -11,28 +14,28 @@ const httpStatusCode = {
   NOT_FOUND: 404,
   CONFLICT: 409,
   INTERNAL_SERVER: 500,
-} as const;
+} as const
 
 export function mapErrorToHttp(err: unknown): AppError {
   if (err instanceof InvalidEmailError) {
-    return new AppError(err.message, httpStatusCode.BAD_REQUEST);
+    return new AppError(err.message, httpStatusCode.BAD_REQUEST)
   }
 
   if (err instanceof InvalidNameError) {
-    return new AppError(err.message, httpStatusCode.BAD_REQUEST);
+    return new AppError(err.message, httpStatusCode.BAD_REQUEST)
   }
 
   if (err instanceof InvalidCredentialsError) {
-    return new AppError(err.message, httpStatusCode.UNAUTHORIZED);
+    return new AppError(err.message, httpStatusCode.UNAUTHORIZED)
   }
 
   if (err instanceof EmailAlreadyInUseError) {
-    return new AppError(err.message, httpStatusCode.CONFLICT);
+    return new AppError(err.message, httpStatusCode.CONFLICT)
   }
 
   if (err instanceof AppError) {
-    return err;
+    return err
   }
 
-  return new AppError('Internal server error', httpStatusCode.INTERNAL_SERVER);
+  return new AppError('Internal server error', httpStatusCode.INTERNAL_SERVER)
 }

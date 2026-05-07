@@ -1,60 +1,37 @@
 {
-  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.14/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true
   },
+  "files": {
+    "ignoreUnknown": false
+  },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
     "indentWidth": 2,
-    "lineWidth": 100
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "single",
-      "semicolons": "always"
-    }
+    "lineWidth": 80
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
-      "style": {
-        "useReadonlyClassProperties": "warn",
-        "noParameterProperties": "warn",
-        "useConsistentMemberAccessibility": "warn"
-      },
-      "suspicious": {
-        "noExplicitAny": "warn"
-      },
-      "correctness": {
-        "noUnusedPrivateClassMembers": "warn"
-      },
-      "nursery": {
-        "noFloatingPromises": "error"
-      }
+      "recommended": true
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "asNeeded"
     }
   },
   "assist": {
+    "enabled": true,
     "actions": {
       "source": {
         "organizeImports": "on"
       }
     }
-  },
-  "files": {
-    "includes": [
-      "api/src/**",
-      "web/src/**",
-      "web/public/**",
-      "api/package.json",
-      "web/package.json",
-      "package.json",
-      "pnpm-workspace.yaml",
-      "biome.json",
-      ".vscode/settings.json"
-    ]
   }
 }

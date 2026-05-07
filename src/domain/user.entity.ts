@@ -1,41 +1,46 @@
-import { InvalidEmailError, InvalidNameError } from './user.errors.js';
+import { InvalidEmailError, InvalidNameError } from './user.errors.js'
 
 type CreateUserProps = {
-  id: string;
-  email: string;
-  name: string;
-};
+  id: string
+  email: string
+  name: string
+}
 
 type RestoreUserProps = {
-  id: string;
-  email: string;
-  name: string;
-  createdAt: Date;
-};
+  id: string
+  email: string
+  name: string
+  createdAt: Date
+}
 
 export class User {
-  readonly id: string;
-  readonly email: string;
-  readonly name: string;
-  readonly createdAt: Date;
-  private constructor(id: string, email: string, name: string, createdAt: Date) {
-    this.id = id;
-    this.email = email;
-    this.name = name;
-    this.createdAt = createdAt;
+  readonly id: string
+  readonly email: string
+  readonly name: string
+  readonly createdAt: Date
+  private constructor(
+    id: string,
+    email: string,
+    name: string,
+    createdAt: Date,
+  ) {
+    this.id = id
+    this.email = email
+    this.name = name
+    this.createdAt = createdAt
   }
 
   static create(props: CreateUserProps): User {
-    const email = props.email.trim().toLowerCase();
-    const name = props.name.trim();
+    const email = props.email.trim().toLowerCase()
+    const name = props.name.trim()
 
-    if (!email.includes('@')) throw new InvalidEmailError();
-    if (name.length < 2) throw new InvalidNameError();
+    if (!email.includes('@')) throw new InvalidEmailError()
+    if (name.length < 2) throw new InvalidNameError()
 
-    return new User(props.id, email, name, new Date());
+    return new User(props.id, email, name, new Date())
   }
 
   static restore(props: RestoreUserProps): User {
-    return new User(props.id, props.email, props.name, props.createdAt);
+    return new User(props.id, props.email, props.name, props.createdAt)
   }
 }

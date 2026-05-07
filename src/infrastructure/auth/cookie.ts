@@ -1,6 +1,6 @@
-import type { CookieOptions } from 'express';
+import type { CookieOptions } from 'express'
 
-export const SESSION_COOKIE_NAME = 'session_id';
+export const SESSION_COOKIE_NAME = 'session_id'
 
 export const sessionCookieOptions: CookieOptions = {
   path: '/',
@@ -8,4 +8,4 @@ export const sessionCookieOptions: CookieOptions = {
   httpOnly: true,
   sameSite: 'lax',
   // secure: process.env.NODE_ENV === "production",
-};
+}
