@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { eq } from 'drizzle-orm';
 import type { UserRepositoryPort } from '../../../application/ports/user.repository.port.js';
 import { User } from '../../../domain/user.entity.js';

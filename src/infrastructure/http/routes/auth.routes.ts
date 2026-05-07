@@ -12,7 +12,6 @@ export function createAuthRouter(
   const controller = new AuthController(registerUserUseCase, loginUseCase);
 
   router.post('/register', (req: Request, res: Response) => {
-    console.log(req.body);
     return controller.register(req, res);
   });
 

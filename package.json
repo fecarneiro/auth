@@ -7,7 +7,7 @@
     "pnpm": ">=10 <11"
   },
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "tsx watch --env-file=.env src/server.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "start": "node dist/server.js",
@@ -22,7 +22,6 @@
   "packageManager": "pnpm@10.33.0",
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
     "pg": "^8.20.0",

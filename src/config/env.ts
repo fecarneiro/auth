@@ -1,9 +1,3 @@
-import dotenv from 'dotenv';
-
-if (process.env.NODE_ENV !== 'production') {
-  dotenv.config();
-}
-
 function required(name: string) {
   const value = process.env[name];
   if (!value) {
