@@ -1,7 +1,11 @@
 {
-  "name": "api",
+  "name": "auth",
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": ">=10 <11"
+  },
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "typecheck": "tsc --noEmit",
@@ -13,8 +17,7 @@
     "db:studio": "drizzle-kit studio",
     "test": "vitest run",
     "test:watch": "vitest",
-    "biome": "pnpm exec biome check --write",
-    "drizzle-dev": "npx drizzle-kit push"
+    "biome": "pnpm exec biome check --write"
   },
   "packageManager": "pnpm@10.33.0",
   "dependencies": {
@@ -29,11 +32,13 @@
     "@biomejs/biome": "2.4.14",
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
-    "@types/node": "^25.6.0",
+    "@types/node": "^24.12.2",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.5"
-  }
+  },
+  "author": "Felipe Carneiro",
+  "license": "MIT"
 }
