@@ -1,9 +1,9 @@
-export interface password {
+export interface Password {
   userId: string
   passwordHash: string
 }
 
-export interface passwordRepositoryPort {
-  save(credential: password): Promise<void>
-  findByUserId(userId: string): Promise<password | null>
+export interface PasswordRepositoryPort {
+  save(credential: Password): Promise<void>
+  findByUserId(userId: string): Promise<Password | null>
 }

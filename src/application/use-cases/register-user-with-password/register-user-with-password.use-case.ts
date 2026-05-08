@@ -1,7 +1,7 @@
 import { User } from '../../../domain/user.entity.js'
+import type { RegisterUserWithPasswordRepository } from '../../../infrastructure/database/repository/drizzle-register-user-with-password.repository.js'
 import type { HashServicePort } from '../../ports/hash.service.port.js'
 import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
-import type { passwordRepositoryPort } from '../../ports/password.repository.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { EmailAlreadyInUseError } from './register-user.errors.js'
 
@@ -25,7 +25,7 @@ export class RegisterUserWithPasswordUseCase {
     private readonly idGenerator: IdGeneratorPort,
     private readonly userRepository: UserRepositoryPort,
     private readonly hashService: HashServicePort,
-    private readonly passwordRepository: passwordRepositoryPort,
+    private readonly registerUserWithPasswordRepository: RegisterUserWithPasswordRepository,
   ) {}
 
   async execute(
@@ -44,12 +44,13 @@ export class RegisterUserWithPasswordUseCase {
     })
 
     const hashedPassword = await this.hashService.hash(input.password)
-    await this.userRepository.save(user)
 
-    await this.passwordRepository.save({
-      userId: id,
+    const credential = {
+      user: user,
       passwordHash: hashedPassword,
-    })
+    }
+
+    await this.registerUserWithPasswordRepository.save(credential)
 
     return {
       user: {

@@ -1,16 +1,16 @@
-import type { RegisterUserWithPassowordRepositoryPort } from '../../../application/ports/register-user-with-password.repository.port.js'
+import type {
+  RegisterUserWithPasswordRepositoryPort,
+  UserAndPasswordInput,
+} from '../../../application/ports/register-user-with-password.repository.port.js'
 import type { User } from '../../../domain/user.entity.js'
 import { db } from '../db.js'
 import { passwordTable } from '../schema/password.schema.js'
 import { usersTable } from '../schema/user.schema.js'
 
-export class RegisterUserWithPassowordRepository
-  implements RegisterUserWithPassowordRepositoryPort
+export class RegisterUserWithPasswordRepository
+  implements RegisterUserWithPasswordRepositoryPort
 {
-  async saveUserWithPassoword(credential: {
-    user: User
-    passwordHash: string
-  }): Promise<void> {
+  async save(credential: UserAndPasswordInput): Promise<User | null> {
     const user = credential.user
     const passwordHash = credential.passwordHash
 
@@ -26,5 +26,12 @@ export class RegisterUserWithPassowordRepository
         passwordHash: passwordHash,
       })
     })
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      createdAt: user.createdAt,
+    }
   }
 }

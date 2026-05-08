@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express'
 import type { LoginUseCase } from '../../../application/use-cases/login/login.use-case.js'
-import type { RegisterUserWithPasswordUseCase } from '../../../application/use-cases/register-user/register-user.use-case.js'
+import type { RegisterUserWithPasswordUseCase } from '../../../application/use-cases/register-user-with-password/register-user-with-password.use-case.js'
 import { AppError } from '../errors/app-error.js'
 
 export class AuthController {

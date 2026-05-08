@@ -1,5 +1,5 @@
 import type { HashServicePort } from '../../ports/hash.service.port.js'
-import type { passwordRepositoryPort } from '../../ports/password.repository.port.js'
+import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { InvalidCredentialsError } from './login.errors.js'
 
@@ -19,7 +19,7 @@ export interface LoginOutput {
 export class LoginUseCase {
   constructor(
     private readonly userRepository: UserRepositoryPort,
-    private readonly passwordRepository: passwordRepositoryPort,
+    private readonly passwordRepository: PasswordRepositoryPort,
     private readonly hashService: HashServicePort,
   ) {}
 
