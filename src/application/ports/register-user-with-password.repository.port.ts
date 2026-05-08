@@ -1,8 +1,10 @@
 import type { User } from '../../domain/user.entity.js'
 
-export interface RegisterUserWithPassowordRepositoryPort {
-  saveUserWithPassoword(credential: {
-    user: User
-    passwordHash: string
-  }): Promise<void>
+export interface UserAndPasswordInput {
+  user: User
+  passwordHash: string
+}
+
+export interface RegisterUserWithPasswordRepositoryPort {
+  save(credential: UserAndPasswordInput): Promise<User | null>
 }
