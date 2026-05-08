@@ -1,5 +1,5 @@
 import type { HashServicePort } from '../../ports/hash.service.port.js'
-import type { PasswordCredentialRepositoryPort } from '../../ports/password-credential.repository.port.js'
+import type { passwordRepositoryPort } from '../../ports/password.repository.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { InvalidCredentialsError } from './login.errors.js'
 
@@ -19,7 +19,7 @@ export interface LoginOutput {
 export class LoginUseCase {
   constructor(
     private readonly userRepository: UserRepositoryPort,
-    private readonly passwordCredentialRepository: PasswordCredentialRepositoryPort,
+    private readonly passwordRepository: passwordRepositoryPort,
     private readonly hashService: HashServicePort,
   ) {}
 
@@ -29,14 +29,13 @@ export class LoginUseCase {
 
     if (!user) throw new InvalidCredentialsError()
 
-    const passwordCredential =
-      await this.passwordCredentialRepository.findByUserId(user.id)
+    const password = await this.passwordRepository.findByUserId(user.id)
 
-    if (!passwordCredential) throw new InvalidCredentialsError()
+    if (!password) throw new InvalidCredentialsError()
 
     const passwordMatches = await this.hashService.compare(
       input.password,
-      passwordCredential.passwordHash,
+      password.passwordHash,
     )
 
     if (!passwordMatches) throw new InvalidCredentialsError()

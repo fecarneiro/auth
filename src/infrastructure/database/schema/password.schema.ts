@@ -1,7 +1,7 @@
 import { pgTable, uuid, varchar } from 'drizzle-orm/pg-core'
 import { usersTable } from './user.schema.js'
 
-export const passwordCredentialsTable = pgTable('password_credentials', {
+export const passwordTable = pgTable('password', {
   userId: uuid('user_id')
     .primaryKey()
     .references(() => usersTable.id, { onDelete: 'cascade' }),

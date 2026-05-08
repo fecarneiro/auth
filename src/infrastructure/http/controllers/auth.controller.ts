@@ -20,7 +20,7 @@ export class AuthController {
       name,
       password,
     })
-    return res.status(200).json(result)
+    return res.status(201).json(result)
   }
 
   login = async (req: Request, res: Response) => {
