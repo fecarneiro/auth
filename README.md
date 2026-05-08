@@ -189,6 +189,7 @@ The current implementation does not include session management, JWT issuing, ref
 
 Planned improvements:
 - Add unit of work(transaction) for user + password
+- Add better validation to variables that always validate cases as string with happy paths
 - Add session or token issuing after successful login.
 - Add authenticated route protection.
 - Add refresh token support.
