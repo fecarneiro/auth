@@ -1,17 +1,17 @@
 import { User } from '../../../domain/user.entity.js'
-import type { RegisterUserWithPasswordRepository } from '../../../infrastructure/database/repository/drizzle-register-user-with-password.repository.js'
 import type { HashServicePort } from '../../ports/hash.service.port.js'
 import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
+import type { RegisterWithPasswordRepositoryPort } from '../../ports/register-with-password.repository.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
-import { EmailAlreadyInUseError } from './register-user-with-password.errors.js'
+import { EmailAlreadyInUseError } from './register-with-password.errors.js'
 
-export interface RegisterUserWithPasswordInput {
+export interface RegisterWithPasswordInput {
   email: string
   name: string
   password: string
 }
 
-export interface RegisterUserWithPasswordOutput {
+export interface RegisterWithPasswordOutput {
   user: {
     id: string
     email: string
@@ -20,17 +20,17 @@ export interface RegisterUserWithPasswordOutput {
   }
 }
 
-export class RegisterUserWithPasswordUseCase {
+export class RegisterWithPasswordUseCase {
   constructor(
     private readonly idGenerator: IdGeneratorPort,
     private readonly userRepository: UserRepositoryPort,
     private readonly hashService: HashServicePort,
-    private readonly registerUserWithPasswordRepository: RegisterUserWithPasswordRepository,
+    private readonly registerWithPasswordRepository: RegisterWithPasswordRepositoryPort,
   ) {}
 
   async execute(
-    input: RegisterUserWithPasswordInput,
-  ): Promise<RegisterUserWithPasswordOutput> {
+    input: RegisterWithPasswordInput,
+  ): Promise<RegisterWithPasswordOutput> {
     const email = input.email.trim().toLowerCase()
     const existingUser = await this.userRepository.findByEmail(email)
     if (existingUser) throw new EmailAlreadyInUseError()
@@ -50,7 +50,7 @@ export class RegisterUserWithPasswordUseCase {
       passwordHash: hashedPassword,
     }
 
-    await this.registerUserWithPasswordRepository.save(credential)
+    await this.registerWithPasswordRepository.save(credential)
 
     return {
       user: {

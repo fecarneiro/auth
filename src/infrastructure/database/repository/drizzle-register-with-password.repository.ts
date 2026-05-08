@@ -1,14 +1,14 @@
 import type {
-  RegisterUserWithPasswordRepositoryPort,
+  RegisterWithPasswordRepositoryPort,
   UserAndPasswordInput,
-} from '../../../application/ports/register-user-with-password.repository.port.js'
+} from '../../../application/ports/register-with-password.repository.port.js'
 import type { User } from '../../../domain/user.entity.js'
 import { db } from '../db.js'
 import { passwordTable } from '../schema/password.schema.js'
 import { usersTable } from '../schema/user.schema.js'
 
-export class RegisterUserWithPasswordRepository
-  implements RegisterUserWithPasswordRepositoryPort
+export class RegisterWithPasswordRepository
+  implements RegisterWithPasswordRepositoryPort
 {
   async save(credential: UserAndPasswordInput): Promise<User | null> {
     const user = credential.user

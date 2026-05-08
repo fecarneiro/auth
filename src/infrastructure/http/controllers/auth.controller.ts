@@ -1,11 +1,11 @@
 import type { Request, Response } from 'express'
 import type { LoginUseCase } from '../../../application/use-cases/login/login.use-case.js'
-import type { RegisterUserWithPasswordUseCase } from '../../../application/use-cases/register-user-with-password/register-user-with-password.use-case.js'
+import type { RegisterWithPasswordUseCase } from '../../../application/use-cases/register-with-password/register-with-password.use-case.js'
 import { AppError } from '../errors/app-error.js'
 
 export class AuthController {
   constructor(
-    private readonly registerUserWithPasswordUseCase: RegisterUserWithPasswordUseCase,
+    private readonly registerWithPasswordUseCase: RegisterWithPasswordUseCase,
     private readonly loginUseCase: LoginUseCase,
   ) {}
 
@@ -15,7 +15,7 @@ export class AuthController {
       throw new AppError('Email, name and password are required', 400)
     }
 
-    const result = await this.registerUserWithPasswordUseCase.execute({
+    const result = await this.registerWithPasswordUseCase.execute({
       email,
       name,
       password,

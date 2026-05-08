@@ -1,16 +1,16 @@
 import type { Request, Response } from 'express'
 import { Router } from 'express'
 import type { LoginUseCase } from '../../../application/use-cases/login/login.use-case.js'
-import type { RegisterUserWithPasswordUseCase } from '../../../application/use-cases/register-user-with-password/register-user-with-password.use-case.js'
+import type { RegisterWithPasswordUseCase } from '../../../application/use-cases/register-with-password/register-with-password.use-case.js'
 import { AuthController } from '../controllers/auth.controller.js'
 
 export function createAuthRouter(
-  RegisterUserWithPasswordUseCase: RegisterUserWithPasswordUseCase,
+  registerWithPasswordUseCase: RegisterWithPasswordUseCase,
   loginUseCase: LoginUseCase,
 ) {
   const router = Router()
   const controller = new AuthController(
-    RegisterUserWithPasswordUseCase,
+    registerWithPasswordUseCase,
     loginUseCase,
   )
 

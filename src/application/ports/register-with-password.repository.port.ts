@@ -5,6 +5,6 @@ export interface UserAndPasswordInput {
   passwordHash: string
 }
 
-export interface RegisterUserWithPasswordRepositoryPort {
+export interface RegisterWithPasswordRepositoryPort {
   save(credential: UserAndPasswordInput): Promise<User | null>
 }
