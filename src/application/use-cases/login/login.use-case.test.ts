@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { User } from '../../../domain/user.entity.js'
 import type { HashServicePort } from '../../ports/hash.service.port.js'
-import type { passwordRepositoryPort } from '../../ports/password.repository.port.js'
+import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { InvalidCredentialsError } from './login.errors.js'
 import { type LoginInput, LoginUseCase } from './login.use-case.js'
@@ -20,7 +20,7 @@ function makeSut() {
     save: vi.fn(),
   }
 
-  const passwordRepository: passwordRepositoryPort = {
+  const passwordRepository: PasswordRepositoryPort = {
     findByUserId: vi.fn(async () => ({
       userId: 'user-1',
       passwordHash: 'hashed-password',
