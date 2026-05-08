@@ -1,8 +1,9 @@
 export class AppError extends Error {
-  readonly statusCode: number
-  constructor(message: string, statusCode: number) {
+  constructor(
+    message: string,
+    readonly statusCode: number,
+  ) {
     super(message)
-    this.statusCode = statusCode
     this.name = this.constructor.name
 
     Object.setPrototypeOf(this, this.constructor.prototype)

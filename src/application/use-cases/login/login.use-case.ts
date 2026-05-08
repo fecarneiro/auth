@@ -17,18 +17,11 @@ export interface LoginOutput {
 }
 
 export class LoginUseCase {
-  private readonly userRepository: UserRepositoryPort
-  private readonly passwordCredentialRepository: PasswordCredentialRepositoryPort
-  private readonly hashService: HashServicePort
   constructor(
-    userRepository: UserRepositoryPort,
-    passwordCredentialRepository: PasswordCredentialRepositoryPort,
-    hashService: HashServicePort,
-  ) {
-    this.userRepository = userRepository
-    this.passwordCredentialRepository = passwordCredentialRepository
-    this.hashService = hashService
-  }
+    private readonly userRepository: UserRepositoryPort,
+    private readonly passwordCredentialRepository: PasswordCredentialRepositoryPort,
+    private readonly hashService: HashServicePort,
+  ) {}
 
   async execute(input: LoginInput): Promise<LoginOutput> {
     const email = input.email.trim().toLowerCase()

@@ -4,15 +4,10 @@ import type { RegisterUserWithPasswordUseCase } from '../../../application/use-c
 import { AppError } from '../errors/app-error.js'
 
 export class AuthController {
-  private readonly RegisterUserWithPasswordUseCase: RegisterUserWithPasswordUseCase
-  private readonly loginUseCase: LoginUseCase
   constructor(
-    RegisterUserWithPasswordUseCase: RegisterUserWithPasswordUseCase,
-    loginUseCase: LoginUseCase,
-  ) {
-    this.RegisterUserWithPasswordUseCase = RegisterUserWithPasswordUseCase
-    this.loginUseCase = loginUseCase
-  }
+    private readonly registerUserWithPasswordUseCase: RegisterUserWithPasswordUseCase,
+    private readonly loginUseCase: LoginUseCase,
+  ) {}
 
   register = async (req: Request, res: Response) => {
     const { email, name, password } = req.body
@@ -20,7 +15,7 @@ export class AuthController {
       throw new AppError('Email, name and password are required', 400)
     }
 
-    const result = await this.RegisterUserWithPasswordUseCase.execute({
+    const result = await this.registerUserWithPasswordUseCase.execute({
       email,
       name,
       password,

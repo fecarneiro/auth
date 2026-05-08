@@ -14,21 +14,12 @@ type RestoreUserProps = {
 }
 
 export class User {
-  readonly id: string
-  readonly email: string
-  readonly name: string
-  readonly createdAt: Date
   private constructor(
-    id: string,
-    email: string,
-    name: string,
-    createdAt: Date,
-  ) {
-    this.id = id
-    this.email = email
-    this.name = name
-    this.createdAt = createdAt
-  }
+    readonly id: string,
+    readonly email: string,
+    readonly name: string,
+    readonly createdAt: Date,
+  ) {}
 
   static create(props: CreateUserProps): User {
     const email = props.email.trim().toLowerCase()

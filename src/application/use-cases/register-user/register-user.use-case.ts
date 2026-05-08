@@ -21,22 +21,12 @@ export interface RegisterUserWithPasswordOutput {
 }
 
 export class RegisterUserWithPasswordUseCase {
-  private readonly idGenerator: IdGeneratorPort
-  private readonly userRepository: UserRepositoryPort
-  private readonly hashService: HashServicePort
-  private readonly passwordCredentialRepository: PasswordCredentialRepositoryPort
-
   constructor(
-    idGenerator: IdGeneratorPort,
-    userRepository: UserRepositoryPort,
-    hashService: HashServicePort,
-    passwordCredentialRepository: PasswordCredentialRepositoryPort,
-  ) {
-    this.idGenerator = idGenerator
-    this.userRepository = userRepository
-    this.hashService = hashService
-    this.passwordCredentialRepository = passwordCredentialRepository
-  }
+    private readonly idGenerator: IdGeneratorPort,
+    private readonly userRepository: UserRepositoryPort,
+    private readonly hashService: HashServicePort,
+    private readonly passwordCredentialRepository: PasswordCredentialRepositoryPort,
+  ) {}
 
   async execute(
     input: RegisterUserWithPasswordInput,
