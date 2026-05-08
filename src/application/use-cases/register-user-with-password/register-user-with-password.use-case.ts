@@ -3,7 +3,7 @@ import type { RegisterUserWithPasswordRepository } from '../../../infrastructure
 import type { HashServicePort } from '../../ports/hash.service.port.js'
 import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
-import { EmailAlreadyInUseError } from './register-user.errors.js'
+import { EmailAlreadyInUseError } from './register-user-with-password.errors.js'
 
 export interface RegisterUserWithPasswordInput {
   email: string
