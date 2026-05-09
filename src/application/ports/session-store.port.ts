@@ -7,7 +7,7 @@ export interface UserSession {
   createdAt: Date
 }
 
-export interface SessionRepositoryPort {
+export interface SessionStorePort {
   set(userId: string): Promise<void>
-  get(userId: string): UserSession
+  get(userId: string): Promise<UserSession | null>
 }

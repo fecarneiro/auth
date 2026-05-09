@@ -1,5 +1,5 @@
 import { User } from '../../../domain/user.entity.js'
-import type { HashServicePort } from '../../ports/hash.service.port.js'
+import type { HasherPort } from '../../ports/hasher.port.js'
 import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
 import type { RegisterWithPasswordRepositoryPort } from '../../ports/register-with-password.repository.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
@@ -24,7 +24,7 @@ export class RegisterWithPasswordUseCase {
   constructor(
     private readonly idGenerator: IdGeneratorPort,
     private readonly userRepository: UserRepositoryPort,
-    private readonly hashService: HashServicePort,
+    private readonly hash: HasherPort,
     private readonly registerWithPasswordRepository: RegisterWithPasswordRepositoryPort,
   ) {}
 
@@ -43,7 +43,7 @@ export class RegisterWithPasswordUseCase {
       name: input.name,
     })
 
-    const hashedPassword = await this.hashService.hash(input.password)
+    const hashedPassword = await this.hash.hash(input.password)
 
     const credential = {
       user: user,

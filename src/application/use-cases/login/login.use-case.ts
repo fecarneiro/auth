@@ -1,6 +1,6 @@
-import type { HashServicePort } from '../../ports/hash.service.port.js'
+import type { HasherPort } from '../../ports/hasher.port.js'
 import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
-import type { SessionService } from '../../ports/session.repository.port.js'
+import type { SessionStorePort } from '../../ports/session-store.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { InvalidCredentialsError } from './login.errors.js'
 
@@ -21,8 +21,8 @@ export class LoginUseCase {
   constructor(
     private readonly userRepository: UserRepositoryPort,
     private readonly passwordRepository: PasswordRepositoryPort,
-    private readonly hashService: HashServicePort,
-    private readonly sessionService: SessionService,
+    private readonly hash: HasherPort,
+    private readonly session: SessionStorePort,
   ) {}
 
   async execute(input: LoginInput): Promise<LoginOutput> {
@@ -35,14 +35,14 @@ export class LoginUseCase {
 
     if (!password) throw new InvalidCredentialsError()
 
-    const passwordMatches = await this.hashService.compare(
+    const passwordMatches = await this.hash.compare(
       input.password,
       password.passwordHash,
     )
 
     if (!passwordMatches) throw new InvalidCredentialsError()
 
-    await this.sessionService.set(user.id)
+    await this.session.set(user.id)
 
     return {
       user: {
