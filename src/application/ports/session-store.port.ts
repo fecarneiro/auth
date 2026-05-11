@@ -8,6 +8,6 @@ export interface UserSession {
 }
 
 export interface SessionStorePort {
-  set(userId: string): Promise<void>
-  get(userId: string): Promise<UserSession | null>
+  set(input: UserSession): Promise<void>
+  get(input: UserSession): Promise<UserSession | null>
 }

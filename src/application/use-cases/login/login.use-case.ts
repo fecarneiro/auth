@@ -2,7 +2,7 @@ import type { HasherPort } from '../../ports/hasher.port.js'
 import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
 import type { SessionStorePort } from '../../ports/session-store.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
-import { InvalidCredentialsError } from './login.errors.js'
+import { InvalidCredentialsError } from './login-use-case.errors.js'
 
 export interface LoginInput {
   email: string

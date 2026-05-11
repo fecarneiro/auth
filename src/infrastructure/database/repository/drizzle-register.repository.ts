@@ -1,16 +1,14 @@
 import type {
-  RegisterWithPasswordRepositoryPort,
-  UserAndPasswordInput,
-} from '../../../application/ports/register-with-password.repository.port.js'
+  RegisterInput,
+  RegisterPort,
+} from '../../../application/ports/register.repository.port.js'
 import type { User } from '../../../domain/user.entity.js'
 import { db } from '../db.js'
 import { passwordTable } from '../schema/password.schema.js'
 import { usersTable } from '../schema/user.schema.js'
 
-export class RegisterWithPasswordRepository
-  implements RegisterWithPasswordRepositoryPort
-{
-  async save(credential: UserAndPasswordInput): Promise<User | null> {
+export class DrizzleRegisterRepository implements RegisterPort {
+  async save(credential: RegisterInput): Promise<User | null> {
     const user = credential.user
     const passwordHash = credential.passwordHash
 

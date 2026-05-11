@@ -3,7 +3,7 @@ import { User } from '../../../domain/user.entity.js'
 import type { HasherPort } from '../../ports/hasher.port.js'
 import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
-import { InvalidCredentialsError } from './login.errors.js'
+import { InvalidCredentialsError } from './login-use-case.errors.js'
 import { type LoginInput, LoginUseCase } from './login.use-case.js'
 
 function makeSut() {
