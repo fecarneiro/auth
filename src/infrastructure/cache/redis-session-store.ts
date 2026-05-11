@@ -1,5 +1,8 @@
 import crypto from 'node:crypto'
-import type { SessionStorePort } from '../../application/ports/session-store.port.js'
+import type {
+  SessionData,
+  SessionStorePort,
+} from '../../application/ports/session-store.port.js'
 import { redisClient } from './redis.js'
 
 export interface RedisClient {
@@ -15,22 +18,22 @@ export class RedisSessionStore implements SessionStorePort {
     private readonly ttl = 1800,
   ) {}
 
-  async set(userId: string): Promise<string> {
+  async set(sessionData: SessionData): Promise<string> {
     const sessionId = crypto.randomBytes(32).toString('hex')
 
     await this.client.setEx(
       this.prefix + sessionId,
       this.ttl,
-      JSON.stringify({ userId }),
+      JSON.stringify(sessionData),
     )
 
     return sessionId
   }
 
-  async get(sessionId: string): Promise<string | null> {
+  async get(sessionId: string): Promise<SessionData | null> {
     const raw = await this.client.get(this.prefix + sessionId)
     if (!raw) return null
-    return JSON.parse(raw).userId
+    return JSON.parse(raw)
   }
 
   async invalidate(sessionId: string): Promise<void> {
