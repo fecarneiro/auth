@@ -2,9 +2,15 @@ import crypto from 'node:crypto'
 import type { SessionStorePort } from '../../application/ports/session-store.port.js'
 import { redisClient } from './redis.js'
 
+export interface RedisClient {
+  setEx(key: string, seconds: number, value: string): Promise<string>
+  get(key: string): Promise<string | null>
+  del(key: string | string[]): Promise<number>
+}
+
 export class RedisSessionStore implements SessionStorePort {
   constructor(
-    private readonly client = redisClient,
+    private readonly client: RedisClient = redisClient,
     private readonly ttl = 1800,
   ) {}
 
