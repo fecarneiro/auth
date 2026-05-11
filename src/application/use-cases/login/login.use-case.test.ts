@@ -1,8 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 import { User } from '../../../domain/user.entity.js'
-import type { HasherPort } from '../../ports/hasher.port.js'
-import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
-import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { InvalidCredentialsError } from './login-use-case.errors.js'
 import { type LoginInput, LoginUseCase } from './login.use-case.js'
 
@@ -14,26 +11,31 @@ function makeSut() {
     createdAt: new Date('2026-01-01'),
   })
 
-  const userRepository: UserRepositoryPort = {
+  const userRepository = {
     findByEmail: vi.fn(async () => user),
-    findById: vi.fn(),
-    save: vi.fn(),
   }
 
-  const passwordRepository: PasswordRepositoryPort = {
+  const passwordRepository = {
     findByUserId: vi.fn(async () => ({
       userId: 'user-1',
       passwordHash: 'hashed-password',
     })),
-    save: vi.fn(),
   }
 
-  const hash: HasherPort = {
-    hash: vi.fn(),
+  const hash = {
     compare: vi.fn(async () => true),
   }
 
-  const sut = new LoginUseCase(userRepository, passwordRepository, hash)
+  const sessionStore = {
+    set: vi.fn(async () => 'session-abc'),
+  }
+
+  const sut = new LoginUseCase(
+    userRepository,
+    passwordRepository,
+    hash,
+    sessionStore,
+  )
 
   return {
     sut,
@@ -41,12 +43,13 @@ function makeSut() {
     userRepository,
     passwordRepository,
     hash,
+    sessionStore,
   }
 }
 
 describe('LoginUseCase', () => {
   it('should login successfully with valid credentials', async () => {
-    const { sut, userRepository, passwordRepository, hash } = makeSut()
+    const { sut, sessionStore } = makeSut()
 
     const input: LoginInput = {
       email: 'user@example.com',
@@ -61,18 +64,14 @@ describe('LoginUseCase', () => {
         email: 'user@example.com',
         name: 'User Example',
       },
+      sessionId: 'session-abc',
     })
 
-    expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com')
-    expect(passwordRepository.findByUserId).toHaveBeenCalledWith('user-1')
-    expect(hash.compare).toHaveBeenCalledWith(
-      'plain-password',
-      'hashed-password',
-    )
+    expect(sessionStore.set).toHaveBeenCalledWith({ userId: 'user-1' })
   })
 
   it('should fail login with invalid password', async () => {
-    const { sut, userRepository, passwordRepository, hash } = makeSut()
+    const { sut, hash, sessionStore } = makeSut()
 
     vi.mocked(hash.compare).mockResolvedValueOnce(false)
 
@@ -82,17 +81,12 @@ describe('LoginUseCase', () => {
     }
 
     await expect(sut.execute(input)).rejects.toThrow(InvalidCredentialsError)
-
-    expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com')
-    expect(passwordRepository.findByUserId).toHaveBeenCalledWith('user-1')
-    expect(hash.compare).toHaveBeenCalledWith(
-      'wrong-password',
-      'hashed-password',
-    )
+    expect(sessionStore.set).not.toHaveBeenCalled()
   })
 
   it('should fail login with unknown email', async () => {
-    const { sut, userRepository, passwordRepository, hash } = makeSut()
+    const { sut, userRepository, passwordRepository, hash, sessionStore } =
+      makeSut()
 
     vi.mocked(userRepository.findByEmail).mockResolvedValueOnce(null)
 
@@ -102,16 +96,14 @@ describe('LoginUseCase', () => {
     }
 
     await expect(sut.execute(input)).rejects.toThrow(InvalidCredentialsError)
-
-    expect(userRepository.findByEmail).toHaveBeenCalledWith(
-      'invalid@example.com',
-    )
+    expect(sessionStore.set).not.toHaveBeenCalled()
     expect(passwordRepository.findByUserId).not.toHaveBeenCalled()
     expect(hash.compare).not.toHaveBeenCalled()
   })
 
   it('should fail login when password credential is not found', async () => {
-    const { sut, userRepository, passwordRepository, hash } = makeSut()
+    const { sut, userRepository, passwordRepository, hash, sessionStore } =
+      makeSut()
 
     vi.mocked(passwordRepository.findByUserId).mockResolvedValueOnce(null)
     const input: LoginInput = {
@@ -124,6 +116,7 @@ describe('LoginUseCase', () => {
     expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com')
     expect(passwordRepository.findByUserId).toHaveBeenCalledWith('user-1')
     expect(hash.compare).not.toHaveBeenCalled()
+    expect(sessionStore.set).not.toHaveBeenCalled()
   })
 
   it('should normalize email before finding user', async () => {

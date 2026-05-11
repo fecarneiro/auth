@@ -1,6 +1,9 @@
 import type { HasherPort } from '../../ports/hasher.port.js'
 import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
-import type { SessionStorePort } from '../../ports/session-store.port.js'
+import type {
+  SessionData,
+  SessionStorePort,
+} from '../../ports/session-store.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { InvalidCredentialsError } from './login-use-case.errors.js'
 
@@ -15,14 +18,18 @@ export interface LoginOutput {
     email: string
     name: string
   }
+  sessionId: string
 }
 
 export class LoginUseCase {
   constructor(
-    private readonly userRepository: UserRepositoryPort,
-    private readonly passwordRepository: PasswordRepositoryPort,
-    private readonly hash: HasherPort,
-    private readonly session: SessionStorePort,
+    private readonly userRepository: Pick<UserRepositoryPort, 'findByEmail'>,
+    private readonly passwordRepository: Pick<
+      PasswordRepositoryPort,
+      'findByUserId'
+    >,
+    private readonly hash: Pick<HasherPort, 'compare'>,
+    private readonly sessionStore: Pick<SessionStorePort, 'set'>,
   ) {}
 
   async execute(input: LoginInput): Promise<LoginOutput> {
@@ -42,7 +49,11 @@ export class LoginUseCase {
 
     if (!passwordMatches) throw new InvalidCredentialsError()
 
-    await this.session.set(user.id)
+    const sessionData: SessionData = {
+      userId: user.id,
+    }
+
+    const newSessionId = await this.sessionStore.set(sessionData)
 
     return {
       user: {
@@ -50,6 +61,7 @@ export class LoginUseCase {
         email: user.email,
         name: user.name,
       },
+      sessionId: newSessionId,
     }
   }
 }
