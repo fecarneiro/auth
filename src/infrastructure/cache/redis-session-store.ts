@@ -11,6 +11,7 @@ export interface RedisClient {
 export class RedisSessionStore implements SessionStorePort {
   constructor(
     private readonly client: RedisClient = redisClient,
+    private readonly prefix = 'session:',
     private readonly ttl = 1800,
   ) {}
 
@@ -18,7 +19,7 @@ export class RedisSessionStore implements SessionStorePort {
     const sessionId = crypto.randomBytes(32).toString('hex')
 
     await this.client.setEx(
-      `session:${sessionId}`,
+      this.prefix + sessionId,
       this.ttl,
       JSON.stringify({ userId }),
     )
@@ -27,13 +28,12 @@ export class RedisSessionStore implements SessionStorePort {
   }
 
   async get(sessionId: string): Promise<string | null> {
-    const session = await this.client.get(`session:${sessionId}`)
-    if (!session) return null
-
-    return session
+    const raw = await this.client.get(this.prefix + sessionId)
+    if (!raw) return null
+    return JSON.parse(raw).userId
   }
 
   async invalidate(sessionId: string): Promise<void> {
-    await this.client.del(`session:${sessionId}`)
+    await this.client.del(this.prefix + sessionId)
   }
 }
