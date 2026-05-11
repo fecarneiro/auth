@@ -16,7 +16,7 @@ function makeSut() {
   return { fakeClient, sut }
 }
 
-describe('Redis Session Stpre', () => {
+describe('Redis Session Store', () => {
   it('should set new session', async () => {
     const { sut, fakeClient } = makeSut()
 
@@ -35,11 +35,25 @@ describe('Redis Session Stpre', () => {
 
     vi.mocked(fakeClient.get).mockResolvedValue(JSON.stringify({ userId }))
 
-    const session = await sut.set(userId)
+    const existingSession = 'abc123'
 
-    const data = await sut.get(session)
+    const getSession = await sut.get(existingSession)
 
-    expect(data).toBe(userId)
+    expect(getSession).toBe(userId)
+    expect(fakeClient.get).toHaveBeenCalledWith(prefix + existingSession)
+  })
+
+  it('should fail getting a session', async () => {
+    const { sut, fakeClient } = makeSut()
+
+    const invalidSession = 'a2b4v8'
+
+    vi.mocked(fakeClient.get).mockResolvedValue(null)
+
+    const getSession = await sut.get(invalidSession)
+
+    expect(getSession).toBe(null)
+    expect(fakeClient.get).toHaveBeenCalledWith(prefix + invalidSession)
   })
 
   it('should invalidate a session', async () => {
