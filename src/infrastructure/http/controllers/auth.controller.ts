@@ -35,7 +35,6 @@ export class AuthController {
 
     res.cookie('sid', session.sessionId, cookieOptions)
 
-    console.log(req.cookies)
     return res.status(200).json(session)
   }
 }
