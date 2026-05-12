@@ -6,7 +6,7 @@ import { AppError } from '../errors/app-error.js'
 
 export class AuthController {
   constructor(
-    private readonly RegisterUseCase: RegisterUseCase,
+    private readonly registerUseCase: RegisterUseCase,
     private readonly loginUseCase: LoginUseCase,
   ) {}
 
@@ -16,7 +16,7 @@ export class AuthController {
       throw new AppError('Email, name and password are required', 400)
     }
 
-    const result = await this.RegisterUseCase.execute({
+    const result = await this.registerUseCase.execute({
       email,
       name,
       password,
@@ -37,4 +37,13 @@ export class AuthController {
 
     return res.status(200).json(session)
   }
+
+  // logout = async (_req: Request, res: Response) => {
+  //   await this.loginUseCase.execute({ email, password })
+  //   res.clearCookie('sid')
+
+  //   res.cookie('sid', session.sessionId, cookieOptions)
+
+  //   return res.status(200).json(session)
+  // }
 }

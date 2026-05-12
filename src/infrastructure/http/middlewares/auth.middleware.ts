@@ -1,15 +1,14 @@
 import type { NextFunction, Request, Response } from 'express'
-import type { SessionStorePort } from '../../../application/ports/session-store.port.js'
+import type {
+  SessionData,
+  SessionStorePort,
+} from '../../../application/ports/session-store.port.js'
 
-/*
- * Request/ Response/ Next
- * Recebe cookie
- *   -> Valida
- *     1) Se existe
- *     2) Expiracao
- *     3) Secret?
- *
- */
+declare module 'express' {
+  interface Request {
+    user?: SessionData
+  }
+}
 
 export class AuthMiddleware {
   constructor(private readonly sessionStore: SessionStorePort) {}
@@ -26,6 +25,8 @@ export class AuthMiddleware {
       console.log('provided sid not found')
       return res.status(401).json({ message: 'Unauthorized' })
     }
+
+    req.user = session
 
     console.log(req.cookies.sid)
     console.log(session)

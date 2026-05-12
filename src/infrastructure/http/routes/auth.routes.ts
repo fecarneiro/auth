@@ -19,5 +19,9 @@ export function createAuthRouter(
     return controller.login(req, res)
   })
 
+  router.post('/logout', (req: Request, res: Response) => {
+    return controller.logout(req, res)
+  })
+
   return router
 }
