@@ -3,6 +3,7 @@ import type {
   SessionData,
   SessionStorePort,
 } from '../../application/ports/session-store.port.js'
+import { SESSION_TTL_SECONDS } from '../../config/session.config.js'
 import { redisClient } from './redis.js'
 
 export interface RedisClient {
@@ -15,7 +16,7 @@ export class RedisSessionStore implements SessionStorePort {
   constructor(
     private readonly client: RedisClient = redisClient,
     private readonly prefix = 'session:',
-    private readonly ttl = 1800,
+    private readonly ttl = SESSION_TTL_SECONDS,
   ) {}
 
   async set(sessionData: SessionData): Promise<string> {
