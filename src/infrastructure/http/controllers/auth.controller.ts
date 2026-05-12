@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
 import type { LoginUseCase } from '../../../application/use-cases/login/login.use-case.js'
 import type { RegisterUseCase } from '../../../application/use-cases/register/register.use-case.js'
-import { sessionCookieOptions } from '../cookie/session-cookie.js'
+import { cookieOptions } from '../cookie/cookie-options.js'
 import { AppError } from '../errors/app-error.js'
 
 export class AuthController {
@@ -31,10 +31,11 @@ export class AuthController {
       throw new AppError('Email and password are required', 400)
     }
 
-    const result = await this.loginUseCase.execute({ email, password })
+    const session = await this.loginUseCase.execute({ email, password })
 
-    res.cookie('sid', result.sessionId, sessionCookieOptions)
+    res.cookie('sid', session.sessionId, cookieOptions)
 
-    return res.status(200).json(result)
+    console.log(req.cookies)
+    return res.status(200).json(session)
   }
 }
