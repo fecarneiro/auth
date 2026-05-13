@@ -28,7 +28,7 @@ function makeSut() {
   }
 
   const RegisterRepository: RegisterPort = {
-    save: vi.fn(async () => null),
+    save: vi.fn(),
   }
 
   const sut = new RegisterUseCase(

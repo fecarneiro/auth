@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { User } from '../../../domain/user.entity.js'
-import { InvalidCredentialsError } from './login-use-case.errors.js'
 import { type LoginInput, LoginUseCase } from './login.use-case.js'
+import { InvalidCredentialsError } from './login-use-case.errors.js'
 
 function makeSut() {
   const user = User.restore({

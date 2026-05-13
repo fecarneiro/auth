@@ -10,16 +10,6 @@ export interface RegisterWithPasswordInput {
   name: string
   password: string
 }
-
-export interface RegisterWithPasswordOutput {
-  user: {
-    id: string
-    email: string
-    name: string
-    createdAt: Date
-  }
-}
-
 export class RegisterUseCase {
   constructor(
     private readonly idGenerator: IdGeneratorPort,
@@ -28,11 +18,10 @@ export class RegisterUseCase {
     private readonly RegisterRepository: RegisterPort,
   ) {}
 
-  async execute(
-    input: RegisterWithPasswordInput,
-  ): Promise<RegisterWithPasswordOutput> {
+  async execute(input: RegisterWithPasswordInput): Promise<User> {
     const email = input.email.trim().toLowerCase()
     const existingUser = await this.userRepository.findByEmail(email)
+
     if (existingUser) throw new EmailAlreadyInUseError()
 
     const id = this.idGenerator.generate()
@@ -45,20 +34,13 @@ export class RegisterUseCase {
 
     const hashedPassword = await this.hash.hash(input.password)
 
-    const credential = {
+    const userData = {
       user: user,
       passwordHash: hashedPassword,
     }
 
-    await this.RegisterRepository.save(credential)
+    await this.RegisterRepository.save(userData)
 
-    return {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        createdAt: user.createdAt,
-      },
-    }
+    return user
   }
 }
