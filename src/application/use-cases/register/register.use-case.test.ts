@@ -12,22 +12,19 @@ import {
 } from './register.use-case.js'
 
 function makeSut() {
-  const idGenerator: IdGeneratorPort = {
+  const idGenerator: Pick<IdGeneratorPort, 'generate'> = {
     generate: vi.fn(() => 'generated-id'),
   }
 
-  const userRepository: UserRepositoryPort = {
+  const userRepository: Pick<UserRepositoryPort, 'findByEmail'> = {
     findByEmail: vi.fn(async () => null),
-    findById: vi.fn(),
-    save: vi.fn(async () => null),
   }
 
-  const hash: HasherPort = {
+  const hash: Pick<HasherPort, 'hash'> = {
     hash: vi.fn(async () => 'hashed-password'),
-    compare: vi.fn(),
   }
 
-  const RegisterRepository: RegisterPort = {
+  const RegisterRepository: Pick<RegisterPort, 'save'> = {
     save: vi.fn(),
   }
 
