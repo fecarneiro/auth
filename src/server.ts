@@ -1,5 +1,5 @@
 import { app } from './app.js'
-import './config/env.js'
+import './infrastructure/config/env.js'
 
 const port = Number(process.env.PORT ?? 3000)
 

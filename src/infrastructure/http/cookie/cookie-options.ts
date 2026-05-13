@@ -1,5 +1,5 @@
 import type { CookieOptions } from 'express'
-import { SESSION_TTL_SECONDS } from '../../../config/session.config.js'
+import { SESSION_TTL_SECONDS } from '../../config/session.config.js'
 
 export const cookieOptions: CookieOptions = {
   path: '/',

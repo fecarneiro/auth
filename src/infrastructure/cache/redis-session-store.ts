@@ -3,7 +3,7 @@ import type {
   AuthSession,
   SessionStorePort,
 } from '../../application/ports/session-store.port.js'
-import { SESSION_TTL_SECONDS } from '../../config/session.config.js'
+import { SESSION_TTL_SECONDS } from '../config/session.config.js'
 import { redisClient } from './redis.js'
 
 export interface RedisClient {
