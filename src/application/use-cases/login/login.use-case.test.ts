@@ -30,8 +30,8 @@ function makeSut() {
     compare: vi.fn(async () => true),
   }
 
-  const sessionStore: Pick<SessionStorePort, 'set'> = {
-    set: vi.fn(async () => 'session-abc'),
+  const sessionStore: Pick<SessionStorePort, 'create'> = {
+    create: vi.fn(),
   }
 
   const sut = new LoginUseCase(
@@ -71,7 +71,7 @@ describe('LoginUseCase', () => {
       sessionId: 'session-abc',
     })
 
-    expect(sessionStore.set).toHaveBeenCalledWith({ userId: 'user-1' })
+    expect(sessionStore.create).toHaveBeenCalledWith({ userId: 'user-1' })
   })
 
   it('should fail login with invalid password', async () => {
@@ -85,7 +85,7 @@ describe('LoginUseCase', () => {
     }
 
     await expect(sut.execute(input)).rejects.toThrow(InvalidCredentialsError)
-    expect(sessionStore.set).not.toHaveBeenCalled()
+    expect(sessionStore.create).not.toHaveBeenCalled()
   })
 
   it('should fail login with unknown email', async () => {
@@ -100,7 +100,7 @@ describe('LoginUseCase', () => {
     }
 
     await expect(sut.execute(input)).rejects.toThrow(InvalidCredentialsError)
-    expect(sessionStore.set).not.toHaveBeenCalled()
+    expect(sessionStore.create).not.toHaveBeenCalled()
     expect(passwordRepository.findByUserId).not.toHaveBeenCalled()
     expect(hash.compare).not.toHaveBeenCalled()
   })
@@ -120,7 +120,7 @@ describe('LoginUseCase', () => {
     expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com')
     expect(passwordRepository.findByUserId).toHaveBeenCalledWith('user-1')
     expect(hash.compare).not.toHaveBeenCalled()
-    expect(sessionStore.set).not.toHaveBeenCalled()
+    expect(sessionStore.create).not.toHaveBeenCalled()
   })
 
   it('should normalize email before finding user', async () => {

@@ -1,10 +1,10 @@
-export interface SessionData {
+export interface AuthSession {
+  id: string
   userId: string
 }
 
 export interface SessionStorePort {
-  set(sessionData: SessionData): Promise<string>
-  get(sessionId: string): Promise<SessionData | null>
-  invalidate(sessionId: string): Promise<void>
-  // refresh(key: string, seconds: number): Promise<number>
+  create(session: AuthSession): Promise<void>
+  findById(sessionId: string): Promise<AuthSession | null>
+  delete(sessionId: string): Promise<void>
 }

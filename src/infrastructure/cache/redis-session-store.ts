@@ -1,6 +1,6 @@
 import crypto from 'node:crypto'
 import type {
-  SessionData,
+  AuthSession,
   SessionStorePort,
 } from '../../application/ports/session-store.port.js'
 import { SESSION_TTL_SECONDS } from '../../config/session.config.js'
@@ -19,25 +19,23 @@ export class RedisSessionStore implements SessionStorePort {
     private readonly ttl = SESSION_TTL_SECONDS,
   ) {}
 
-  async set(sessionData: SessionData): Promise<string> {
+  async create(sessionData: AuthSession): Promise<void> {
     const sessionId = crypto.randomBytes(32).toString('hex')
 
     await this.client.setEx(
       this.prefix + sessionId,
       this.ttl,
-      JSON.stringify(sessionData),
+      JSON.stringify(sessionData.userId),
     )
-
-    return sessionId
   }
 
-  async get(sessionId: string): Promise<SessionData | null> {
+  async findById(sessionId: string): Promise<AuthSession | null> {
     const raw = await this.client.get(this.prefix + sessionId)
     if (!raw) return null
     return JSON.parse(raw)
   }
 
-  async invalidate(sessionId: string): Promise<void> {
+  async delete(sessionId: string): Promise<void> {
     await this.client.del(this.prefix + sessionId)
   }
 }

@@ -1,12 +1,12 @@
 import type { NextFunction, Request, Response } from 'express'
 import type {
-  SessionData,
+  AuthSession,
   SessionStorePort,
 } from '../../../application/ports/session-store.port.js'
 
 declare module 'express' {
   interface Request {
-    user?: SessionData
+    user?: Pick<AuthSession, 'userId'>
   }
 }
 
@@ -20,7 +20,7 @@ export class AuthMiddleware {
       return res.status(401).json({ message: 'Unauthorized' })
     }
 
-    const session = await this.sessionStore.get(sessionId)
+    const session = await this.sessionStore.findById(sessionId)
     if (!session) {
       console.log('provided sid not found')
       return res.status(401).json({ message: 'Unauthorized' })

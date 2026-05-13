@@ -2,10 +2,10 @@ import type { SessionStorePort } from '../../ports/session-store.port.js'
 
 export class LogoutUseCase {
   constructor(
-    private readonly sessionStore: Pick<SessionStorePort, 'invalidate'>,
+    private readonly sessionStore: Pick<SessionStorePort, 'delete'>,
   ) {}
 
   async execute(sessionId: string): Promise<void> {
-    await this.sessionStore.invalidate(sessionId)
+    await this.sessionStore.delete(sessionId)
   }
 }
