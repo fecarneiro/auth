@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { User } from '../../../domain/user.entity.js'
+import type { HasherPort } from '../../ports/hasher.port.js'
+import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
+import type { SessionStorePort } from '../../ports/session-store.port.js'
+import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { type LoginInput, LoginUseCase } from './login.use-case.js'
 import { InvalidCredentialsError } from './login-use-case.errors.js'
 
@@ -11,22 +15,22 @@ function makeSut() {
     createdAt: new Date('2026-01-01'),
   })
 
-  const userRepository = {
+  const userRepository: Pick<UserRepositoryPort, 'findByEmail'> = {
     findByEmail: vi.fn(async () => user),
   }
 
-  const passwordRepository = {
+  const passwordRepository: Pick<PasswordRepositoryPort, 'findByUserId'> = {
     findByUserId: vi.fn(async () => ({
       userId: 'user-1',
       passwordHash: 'hashed-password',
     })),
   }
 
-  const hash = {
+  const hash: Pick<HasherPort, 'compare'> = {
     compare: vi.fn(async () => true),
   }
 
-  const sessionStore = {
+  const sessionStore: Pick<SessionStorePort, 'set'> = {
     set: vi.fn(async () => 'session-abc'),
   }
 
