@@ -1,6 +1,7 @@
 import cookieParser from 'cookie-parser'
 import express from 'express'
 import { makeLoginUseCase } from './composition/make-login-use-case.js'
+import { makeLogoutUseCase } from './composition/make-logout-use-case.js'
 import { makeRegisterUseCase } from './composition/make-register-use-case.js'
 import { RedisSessionStore } from './infrastructure/cache/redis-session-store.js'
 import { AuthMiddleware } from './infrastructure/http/middlewares/auth.middleware.js'
@@ -11,6 +12,7 @@ import { testRoute } from './infrastructure/http/routes/test.routes.js'
 
 const loginUseCase = makeLoginUseCase()
 const registerUseCase = makeRegisterUseCase()
+const logoutUseCase = makeLogoutUseCase()
 
 export const app = express()
 const sesionStore = new RedisSessionStore()
@@ -20,7 +22,7 @@ app.use(express.json())
 app.use(cookieParser('secret'))
 
 app.use('/health', createHealthCheck())
-app.use('/auth', createAuthRouter(registerUseCase, loginUseCase))
+app.use('/auth', createAuthRouter(registerUseCase, loginUseCase, logoutUseCase))
 
 app.use(authMiddleware.validate)
 app.use('/test', testRoute())

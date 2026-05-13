@@ -8,12 +8,12 @@ export function makeRegisterUseCase() {
   const idGenerator = new UuidV7IdGenerator()
   const userRepository = new DrizzleUserRepository()
   const hash = new BcryptHasher()
-  const RegisterRepository = new DrizzleRegisterRepository()
+  const registerRepository = new DrizzleRegisterRepository()
 
   return new RegisterUseCase(
     idGenerator,
     userRepository,
     hash,
-    RegisterRepository,
+    registerRepository,
   )
 }

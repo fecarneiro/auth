@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express'
 import type { LoginUseCase } from '../../../application/use-cases/login/login.use-case.js'
+import type { LogoutUseCase } from '../../../application/use-cases/logout/logout.use-case.js'
 import type { RegisterUseCase } from '../../../application/use-cases/register/register.use-case.js'
 import { cookieOptions } from '../cookie/cookie-options.js'
 import { AppError } from '../errors/app-error.js'
@@ -8,6 +9,7 @@ export class AuthController {
   constructor(
     private readonly registerUseCase: RegisterUseCase,
     private readonly loginUseCase: LoginUseCase,
+    private readonly logoutUseCase: LogoutUseCase,
   ) {}
 
   register = async (req: Request, res: Response) => {
@@ -32,18 +34,22 @@ export class AuthController {
     }
 
     const session = await this.loginUseCase.execute({ email, password })
+    const { user, sessionId } = session
 
-    res.cookie('sid', session.sessionId, cookieOptions)
+    res.cookie('sid', sessionId, cookieOptions)
 
-    return res.status(200).json(session)
+    return res.status(200).json(user)
   }
 
-  // logout = async (_req: Request, res: Response) => {
-  //   await this.loginUseCase.execute({ email, password })
-  //   res.clearCookie('sid')
+  // TODO
+  logout = async (req: Request, res: Response) => {
+    const sessionId = req.cookies.sid
 
-  //   res.cookie('sid', session.sessionId, cookieOptions)
+    if (!sessionId) return res.status(200).json({ message: 'OK' })
 
-  //   return res.status(200).json(session)
-  // }
+    await this.logoutUseCase.execute(sessionId)
+    res.clearCookie('sid')
+
+    return res.status(200).json({ message: 'OK' })
+  }
 }
