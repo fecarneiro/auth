@@ -58,7 +58,7 @@ Some decisions in this project are intentionally simple to keep the architecture
 | HTTP controllers are inbound adapters | Controllers translate Express requests into use case inputs and HTTP responses. Express remains outside the application core. |
 | Password credentials are stored separately from users | A user represents an application identity. A password is only one authentication method. Keeping password credentials separate makes room for other methods such as OAuth without coupling them to the user entity. |
 | Credential validation is separate from authentication issuing | Validating an email and password is not the same responsibility as issuing a session, token, or OAuth-based identity. These flows can evolve independently. |
-| Manual composition is used as the composition root | Dependencies are wired explicitly in `src/composition` instead of being resolved by a DI container. The current dependency graph is small enough to keep object creation simple and visible. |
+| Manual composition is used as the composition root | Dependencies are wired explicitly in `src/infrastructure/composition` instead of being resolved by a DI container. The current dependency graph is small enough to keep object creation simple and visible. |
 
 ## Project Structure
 
@@ -67,16 +67,16 @@ src/
 ├── application/
 │   ├── ports/
 │   └── use-cases/
-├── config/
 ├── domain/
-├── composition/
 ├── infrastructure/
-│   ├── auth/
+│   ├── cache/
+│   ├── composition/
+│   ├── config/
 │   ├── crypto/
 │   ├── database/
 │   └── http/
-├── app.ts
-└── server.ts
+│       ├── app.ts
+│       └── server.ts
 ```
 
 | Path | Responsibility |
@@ -87,10 +87,10 @@ src/
 | `src/infrastructure/http` | Express routes, controllers, middlewares, and HTTP error mapping. |
 | `src/infrastructure/database` | Drizzle database connection, schemas, and repository implementations. |
 | `src/infrastructure/crypto` | Cryptography-related adapters, such as password hashing. |
-| `src/composition` | Composition layer that wires use cases to concrete implementations. |
-| `src/config` | Runtime configuration and environment variable loading. |
-| `src/app.ts` | Express application setup. |
-| `src/server.ts` | HTTP server startup. |
+| `src/infrastructure/composition` | Composition layer that wires use cases to concrete implementations. |
+| `src/infrastructure/config` | Runtime configuration and environment variable loading. |
+| `src/infrastructure/http/app.ts` | Express application setup. |
+| `src/infrastructure/http/server.ts` | HTTP server startup. |
 
 ## Getting Started
 
