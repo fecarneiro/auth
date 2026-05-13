@@ -12,10 +12,10 @@ export interface RegisterWithPasswordInput {
 }
 export class RegisterUseCase {
   constructor(
-    private readonly idGenerator: IdGeneratorPort,
-    private readonly userRepository: UserRepositoryPort,
-    private readonly hash: HasherPort,
-    private readonly RegisterRepository: RegisterPort,
+    private readonly idGenerator: Pick<IdGeneratorPort, 'generate'>,
+    private readonly userRepository: Pick<UserRepositoryPort, 'findByEmail'>,
+    private readonly hash: Pick<HasherPort, 'hash'>,
+    private readonly RegisterRepository: Pick<RegisterPort, 'save'>,
   ) {}
 
   async execute(input: RegisterWithPasswordInput): Promise<User> {
