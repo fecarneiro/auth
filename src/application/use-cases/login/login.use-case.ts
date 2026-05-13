@@ -1,9 +1,7 @@
+import crypto from 'node:crypto'
 import type { HasherPort } from '../../ports/hasher.port.js'
 import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
-import type {
-  SessionData,
-  SessionStorePort,
-} from '../../ports/session-store.port.js'
+import type { SessionStorePort } from '../../ports/session-store.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { InvalidCredentialsError } from './login-use-case.errors.js'
 
@@ -29,7 +27,7 @@ export class LoginUseCase {
       'findByUserId'
     >,
     private readonly hash: Pick<HasherPort, 'compare'>,
-    private readonly sessionStore: Pick<SessionStorePort, 'set'>,
+    private readonly sessionStore: Pick<SessionStorePort, 'create'>,
   ) {}
 
   async execute(input: LoginInput): Promise<LoginOutput> {
@@ -49,11 +47,12 @@ export class LoginUseCase {
 
     if (!passwordMatches) throw new InvalidCredentialsError()
 
-    const sessionData: SessionData = {
-      userId: user.id,
-    }
+    const sessionId = crypto.randomBytes(32).toString('hex')
 
-    const newSessionId = await this.sessionStore.set(sessionData)
+    await this.sessionStore.create({
+      id: sessionId,
+      userId: user.id,
+    })
 
     return {
       user: {
@@ -61,7 +60,7 @@ export class LoginUseCase {
         email: user.email,
         name: user.name,
       },
-      sessionId: newSessionId,
+      sessionId: sessionId,
     }
   }
 }
