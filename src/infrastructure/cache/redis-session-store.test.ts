@@ -1,14 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { SessionData } from '../../application/ports/session-store.port.js'
 import { type RedisClient, RedisSessionStore } from './redis-session-store.js'
 
 const userId = '019e16fe-4930-7444-a255-9d19fb8afe5a'
+const sessionId =
+  '39fe2d2d1d6b87dd9a92c5G3ccf0218be575f5b44dc6938e15477c3b3d21e27c'
 const prefix = 'session:'
 const ttl = 3000
-
-const session: SessionData = {
-  userId: userId,
-}
 
 function makeSut() {
   const fakeClient: RedisClient = {
@@ -24,13 +21,16 @@ describe('Redis Session Store', () => {
   it('should set new session', async () => {
     const { sut, fakeClient } = makeSut()
 
-    const newSession = await sut.set(session)
+    const newSession = await sut.create({
+      id: sessionId,
+      userId,
+    })
 
     expect(newSession).toMatch(/^[a-f0-9]{64}$/)
     expect(fakeClient.setEx).toHaveBeenCalledWith(
       prefix + newSession,
       ttl,
-      JSON.stringify(session),
+      JSON.stringify(sessionId),
     )
   })
 
@@ -39,12 +39,10 @@ describe('Redis Session Store', () => {
 
     vi.mocked(fakeClient.get).mockResolvedValue(JSON.stringify({ userId }))
 
-    const existingSession = 'abc123'
+    const findSession = await sut.findById(sessionId)
 
-    const getSession = await sut.get(existingSession)
-
-    expect(getSession).toEqual(session)
-    expect(fakeClient.get).toHaveBeenCalledWith(prefix + existingSession)
+    expect(findSession).toEqual(sessionId)
+    expect(fakeClient.get).toHaveBeenCalledWith(prefix + sessionId)
   })
 
   it('should fail getting a session', async () => {
@@ -54,7 +52,7 @@ describe('Redis Session Store', () => {
 
     vi.mocked(fakeClient.get).mockResolvedValue(null)
 
-    const getSession = await sut.get(invalidSession)
+    const getSession = await sut.findById(invalidSession)
 
     expect(getSession).toBe(null)
     expect(fakeClient.get).toHaveBeenCalledWith(prefix + invalidSession)
@@ -63,9 +61,7 @@ describe('Redis Session Store', () => {
   it('should invalidate a session', async () => {
     const { sut, fakeClient } = makeSut()
 
-    const sessionId = '123456'
-
-    await sut.invalidate(sessionId)
+    await sut.delete(sessionId)
 
     expect(fakeClient.del).toHaveBeenCalledWith(prefix + sessionId)
   })
