@@ -7,10 +7,10 @@ import { db } from '../db.js'
 import { passwordTable } from '../schema/password.schema.js'
 
 export class DrizzlepasswordRepository implements PasswordRepositoryPort {
-  async save(credential: Password): Promise<void> {
+  async save(userData: Password): Promise<void> {
     await db.insert(passwordTable).values({
-      userId: credential.userId,
-      passwordHash: credential.passwordHash,
+      userId: userData.userId,
+      passwordHash: userData.passwordHash,
     })
   }
 

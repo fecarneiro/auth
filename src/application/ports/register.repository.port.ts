@@ -6,5 +6,5 @@ export interface RegisterInput {
 }
 
 export interface RegisterPort {
-  save(credential: RegisterInput): Promise<void>
+  save(userData: RegisterInput): Promise<void>
 }
