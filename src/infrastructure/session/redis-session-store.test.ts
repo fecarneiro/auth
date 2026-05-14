@@ -1,11 +1,21 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { AuthSession } from '../../application/ports/session-store.port.js'
+import {
+  SESSION_PREFIX,
+  SESSION_TTL_SECONDS,
+} from '../config/session.config.js'
 import { type RedisClient, RedisSessionStore } from './redis-session-store.js'
 
 const userId = '019e16fe-4930-7444-a255-9d19fb8afe5a'
 const sessionId =
-  '39fe2d2d1d6b87dd9a92c5G3ccf0218be575f5b44dc6938e15477c3b3d21e27c'
-const prefix = 'session:'
-const ttl = 3000
+  '19f78f104e7059fcb6f9e3f0d17a9412a95754e00729801bebee5997340196e9'
+const ttl = SESSION_TTL_SECONDS
+const prefix = SESSION_PREFIX
+
+const mockSession: AuthSession = {
+  id: sessionId,
+  userId: userId,
+}
 
 function makeSut() {
   const fakeClient: RedisClient = {
@@ -18,30 +28,29 @@ function makeSut() {
 }
 
 describe('Redis Session Store', () => {
-  it('should set new session', async () => {
+  it('should create new session', async () => {
     const { sut, fakeClient } = makeSut()
 
-    const newSession = await sut.create({
+    await sut.create({
       id: sessionId,
       userId,
     })
 
-    expect(newSession).toMatch(/^[a-f0-9]{64}$/)
     expect(fakeClient.setEx).toHaveBeenCalledWith(
-      prefix + newSession,
+      prefix + sessionId,
       ttl,
-      JSON.stringify(sessionId),
+      JSON.stringify(mockSession),
     )
   })
 
   it('should get a session', async () => {
     const { sut, fakeClient } = makeSut()
 
-    vi.mocked(fakeClient.get).mockResolvedValue(JSON.stringify({ userId }))
+    vi.mocked(fakeClient.get).mockResolvedValue(JSON.stringify(mockSession))
 
-    const findSession = await sut.findById(sessionId)
+    const getSession = await sut.findById(sessionId)
 
-    expect(findSession).toEqual(sessionId)
+    expect(getSession).toEqual(mockSession)
     expect(fakeClient.get).toHaveBeenCalledWith(prefix + sessionId)
   })
 
