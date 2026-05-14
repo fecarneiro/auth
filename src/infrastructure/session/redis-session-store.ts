@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import type {
   AuthSession,
   SessionStorePort,
@@ -19,10 +20,12 @@ export class RedisSessionStore implements SessionStorePort {
   ) {}
 
   async create(sessionData: AuthSession): Promise<void> {
+    const sessionId = crypto.randomBytes(32).toString('hex')
+
     await this.client.setEx(
-      this.prefix + sessionData.id,
+      this.prefix + sessionId,
       this.ttl,
-      JSON.stringify({ userId: sessionData.userId }),
+      JSON.stringify(sessionData.userId),
     )
   }
 

@@ -68,13 +68,10 @@ describe('LoginUseCase', () => {
         email: 'user@example.com',
         name: 'User Example',
       },
-      sessionId: expect.stringMatching(/^[a-f0-9]{64}$/),
+      sessionId: 'session-abc',
     })
 
-    expect(sessionStore.create).toHaveBeenCalledWith({
-      id: output.sessionId,
-      userId: 'user-1',
-    })
+    expect(sessionStore.create).toHaveBeenCalledWith({ userId: 'user-1' })
   })
 
   it('should fail login with invalid password', async () => {
