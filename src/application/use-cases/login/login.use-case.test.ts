@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { User } from '../../../domain/user.entity.js'
 import type { HasherPort } from '../../ports/hasher.port.js'
+import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
 import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
 import type { SessionStorePort } from '../../ports/session-store.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
@@ -30,6 +31,10 @@ function makeSut() {
     compare: vi.fn(async () => true),
   }
 
+  const randomSessionIdGenerator: IdGeneratorPort = {
+    generate: vi.fn(() => 'session-id'),
+  }
+
   const sessionStore: Pick<SessionStorePort, 'create'> = {
     create: vi.fn(),
   }
@@ -38,6 +43,7 @@ function makeSut() {
     userRepository,
     passwordRepository,
     hash,
+    randomSessionIdGenerator,
     sessionStore,
   )
 
@@ -68,10 +74,13 @@ describe('LoginUseCase', () => {
         email: 'user@example.com',
         name: 'User Example',
       },
-      sessionId: 'session-abc',
+      sessionId: 'session-id',
     })
 
-    expect(sessionStore.create).toHaveBeenCalledWith({ userId: 'user-1' })
+    expect(sessionStore.create).toHaveBeenCalledWith({
+      id: 'session-id',
+      userId: 'user-1',
+    })
   })
 
   it('should fail login with invalid password', async () => {
