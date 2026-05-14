@@ -1,5 +1,5 @@
-import crypto from 'node:crypto'
 import type { HasherPort } from '../../ports/hasher.port.js'
+import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
 import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
 import type { SessionStorePort } from '../../ports/session-store.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
@@ -27,6 +27,7 @@ export class LoginUseCase {
       'findByUserId'
     >,
     private readonly hash: Pick<HasherPort, 'compare'>,
+    private readonly sessionIdGenerator: IdGeneratorPort,
     private readonly sessionStore: Pick<SessionStorePort, 'create'>,
   ) {}
 
@@ -47,7 +48,7 @@ export class LoginUseCase {
 
     if (!passwordMatches) throw new InvalidCredentialsError()
 
-    const sessionId = crypto.randomBytes(32).toString('hex')
+    const sessionId = this.sessionIdGenerator.generate()
 
     await this.sessionStore.create({
       id: sessionId,
