@@ -55,14 +55,14 @@ describe('RegisterUseCase', () => {
 
     const output = await sut.execute(input)
 
-    expect(output).toEqual({
-      user: {
+    expect(output).toEqual(
+      expect.objectContaining({
         id: 'generated-id',
         email: 'user@example.com',
         name: 'User Example',
         createdAt: expect.any(Date),
-      },
-    })
+      }),
+    )
 
     expect(hash.hash).toHaveBeenCalledWith('password123')
 

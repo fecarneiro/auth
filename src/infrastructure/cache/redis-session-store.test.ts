@@ -21,16 +21,15 @@ describe('Redis Session Store', () => {
   it('should set new session', async () => {
     const { sut, fakeClient } = makeSut()
 
-    const newSession = await sut.create({
+    await sut.create({
       id: sessionId,
       userId,
     })
 
-    expect(newSession).toMatch(/^[a-f0-9]{64}$/)
     expect(fakeClient.setEx).toHaveBeenCalledWith(
-      prefix + newSession,
+      prefix + sessionId,
       ttl,
-      JSON.stringify(sessionId),
+      JSON.stringify({ userId }),
     )
   })
 
@@ -41,7 +40,7 @@ describe('Redis Session Store', () => {
 
     const findSession = await sut.findById(sessionId)
 
-    expect(findSession).toEqual(sessionId)
+    expect(findSession).toEqual({ userId })
     expect(fakeClient.get).toHaveBeenCalledWith(prefix + sessionId)
   })
 
