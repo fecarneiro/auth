@@ -1,8 +1,8 @@
 import { LoginUseCase } from '../../application/use-cases/login/login.use-case.js'
-import { RedisSessionStore } from '../cache/redis-session-store.js'
 import { BcryptHasher } from '../crypto/bcrypt-hasher.js'
 import { DrizzlepasswordRepository } from '../database/repository/drizzle-password.repository.js'
 import { DrizzleUserRepository } from '../database/repository/drizzle-user.repository.js'
+import { RedisSessionStore } from '../session/redis-session-store.js'
 
 export function makeLoginUseCase() {
   const userRepository = new DrizzleUserRepository()
