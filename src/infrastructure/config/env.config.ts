@@ -9,5 +9,7 @@ function required(name: string) {
 export const env = {
   DATABASE_URL: required('DATABASE_URL'),
   NODE_ENV: process.env.NODE_ENV ?? 'development',
-  PORT: Number(process.env.PORT ?? 3000),
+  GOOGLE_CLIENT_ID: required('GOOGLE_CLIENT_ID'),
+  GOOGLE_CLIENT_SECRET: required('GOOGLE_CLIENT_SECRET'),
+  GOOGLE_REDIRECT_URI: required('GOOGLE_REDIRECT_URI'),
 }
