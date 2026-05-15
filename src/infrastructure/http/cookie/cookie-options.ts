@@ -1,4 +1,5 @@
 import type { CookieOptions } from 'express'
+import { env } from '../../config/env.config.js'
 import { SESSION_TTL_SECONDS } from '../../config/session.config.js'
 
 export const cookieOptions: CookieOptions = {
@@ -6,5 +7,5 @@ export const cookieOptions: CookieOptions = {
   maxAge: SESSION_TTL_SECONDS * 1000,
   httpOnly: true,
   sameSite: 'lax',
-  secure: process.env.NODE_ENV === 'production',
+  secure: env.NODE_ENV === 'production',
 }
