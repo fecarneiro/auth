@@ -1,4 +1,4 @@
-import '../config/env.js'
+import '../config/env.config.js'
 import { connectRedis } from '../session/redis.js'
 import { app } from './app.js'
 

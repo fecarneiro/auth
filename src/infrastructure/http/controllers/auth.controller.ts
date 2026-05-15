@@ -41,7 +41,6 @@ export class AuthController {
     return res.status(200).json(user)
   }
 
-  // TODO
   logout = async (req: Request, res: Response) => {
     const sessionId = req.cookies.sid
 
