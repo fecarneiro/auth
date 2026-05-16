@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "pnpm exec biome check",
-    "check:fix": "pnpm exec biome check --write",
+    "check:fix": "pnpm exec biome check --write --unsafe",
     "prepare": "husky"
   },
   "packageManager": "pnpm@11.1.1",
