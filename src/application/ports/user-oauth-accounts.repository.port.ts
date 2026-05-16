@@ -1,13 +1,13 @@
-export type OAuthProviders = 'google' | 'github'
+import type { OAuthProvider } from './oauth-provider.port.js'
 
 export interface OAuthAccount {
   id: string
   user_id: string
-  provider: OAuthProviders
+  provider: OAuthProvider
   provider_user_id: string
 }
 
-export interface UserOAuthAccountsPort {
+export interface UserOAuthAccountsRepositoryPort {
   save(accountData: OAuthAccount): Promise<void>
   findByUserId(
     userId: string,
