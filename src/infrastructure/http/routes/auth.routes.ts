@@ -1,16 +1,15 @@
 import * as arctic from 'arctic'
 import type { Request, Response } from 'express'
 import { Router } from 'express'
-import type { LoginUseCase } from '../../../application/use-cases/login/login.use-case.js'
+import type { LoginWithPasswordUseCase } from '../../../application/use-cases/login-with-password/login-with-password.use-case.js'
 import type { LogoutUseCase } from '../../../application/use-cases/logout/logout.use-case.js'
 import type { RegisterUseCase } from '../../../application/use-cases/register/register.use-case.js'
 import { AuthController } from '../controllers/auth.controller.js'
-import { cookieOptions } from '../cookie/cookie-options.js'
 import { google } from '../oauth/artic.js'
 
 export function createAuthRouter(
   RegisterUseCase: RegisterUseCase,
-  loginUseCase: LoginUseCase,
+  loginUseCase: LoginWithPasswordUseCase,
   logoutUseCase: LogoutUseCase,
 ) {
   const router = Router()
@@ -83,8 +82,8 @@ export function createAuthRouter(
     )
     const idToken = tokens.idToken()
     const _claims = arctic.decodeIdToken(idToken)
-
     console.log(_claims)
+
     return res.status(200).json({ message: 'Authorized' })
   })
 
