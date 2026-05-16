@@ -5,13 +5,13 @@ import type { RegisterRepositoryPort } from '../../ports/register.repository.por
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { EmailAlreadyInUseError } from './register.errors.js'
 
-export interface RegisterInput {
+export interface RegisterUseCaseInput {
   email: string
   name: string
   password: string
 }
 
-export interface RegisterOutput {
+export interface RegisterUseCaseOutput {
   id: string
   email: string
   name: string
@@ -26,7 +26,7 @@ export class RegisterUseCase {
     private readonly RegisterRepository: Pick<RegisterRepositoryPort, 'save'>,
   ) {}
 
-  async execute(input: RegisterInput): Promise<RegisterOutput> {
+  async execute(input: RegisterUseCaseInput): Promise<RegisterUseCaseOutput> {
     const email = input.email.trim().toLowerCase()
     const existingUser = await this.userRepository.findByEmail(email)
 

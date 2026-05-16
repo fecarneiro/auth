@@ -6,7 +6,10 @@ import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
 import type { RegisterRepositoryPort } from '../../ports/register.repository.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { EmailAlreadyInUseError } from './register.errors.js'
-import { type RegisterInput, RegisterUseCase } from './register.use-case.js'
+import {
+  RegisterUseCase,
+  type RegisterUseCaseInput,
+} from './register.use-case.js'
 
 function makeSut() {
   const idGenerator: Pick<IdGeneratorPort, 'generate'> = {
@@ -44,7 +47,7 @@ describe('RegisterUseCase', () => {
   it('should successfully register a new user', async () => {
     const { sut, RegisterRepository, hash } = makeSut()
 
-    const input: RegisterInput = {
+    const input: RegisterUseCaseInput = {
       email: 'user@example.com',
       name: 'User Example',
       password: 'password123',
@@ -77,7 +80,7 @@ describe('RegisterUseCase', () => {
   it('should fail when email is invalid', async () => {
     const { sut, RegisterRepository, hash } = makeSut()
 
-    const input: RegisterInput = {
+    const input: RegisterUseCaseInput = {
       email: 'wrongexample.com',
       name: 'User Example',
       password: 'password123',
@@ -102,7 +105,7 @@ describe('RegisterUseCase', () => {
 
     vi.mocked(userRepository.findByEmail).mockResolvedValueOnce(existingUser)
 
-    const input: RegisterInput = {
+    const input: RegisterUseCaseInput = {
       email: 'user@example.com',
       name: 'User Example',
       password: 'password123',
@@ -118,7 +121,7 @@ describe('RegisterUseCase', () => {
   it('should normalize email before checking if user already exists', async () => {
     const { sut, userRepository } = makeSut()
 
-    const input: RegisterInput = {
+    const input: RegisterUseCaseInput = {
       email: 'usEr@EXample.com',
       name: 'User Example',
       password: 'password123',
