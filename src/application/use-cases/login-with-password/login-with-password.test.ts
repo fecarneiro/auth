@@ -2,9 +2,9 @@ import { describe, expect, it, vi } from 'vitest'
 import { User } from '../../../domain/user.entity.js'
 import type { HasherPort } from '../../ports/hasher.port.js'
 import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
-import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
 import type { SessionStorePort } from '../../ports/session-store.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
+import type { UserPasswordRepositoryPort } from '../../ports/user-password.repository.port.js'
 import { InvalidCredentialsError } from './login-with-password.errors.js'
 import {
   type LoginWithPasswordInput,
@@ -23,7 +23,7 @@ function makeSut() {
     findByEmail: vi.fn(async () => user),
   }
 
-  const passwordRepository: Pick<PasswordRepositoryPort, 'findByUserId'> = {
+  const passwordRepository: Pick<UserPasswordRepositoryPort, 'findByUserId'> = {
     findByUserId: vi.fn(async () => ({
       userId: 'user-1',
       passwordHash: 'hashed-password',

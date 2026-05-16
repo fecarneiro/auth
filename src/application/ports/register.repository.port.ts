@@ -5,6 +5,6 @@ export interface RegisterInput {
   passwordHash: string
 }
 
-export interface RegisterPort {
+export interface RegisterRepositoryPort {
   save(userData: RegisterInput): Promise<void>
 }

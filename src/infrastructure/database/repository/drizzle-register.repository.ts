@@ -1,12 +1,12 @@
 import type {
   RegisterInput,
-  RegisterPort,
+  RegisterRepositoryPort,
 } from '../../../application/ports/register.repository.port.js'
 import { db } from '../db.js'
-import { passwordTable } from '../schema/password.schema.js'
 import { usersTable } from '../schema/user.schema.js'
+import { userPasswordsTable } from '../schema/user-password.schema.js'
 
-export class DrizzleRegisterRepository implements RegisterPort {
+export class DrizzleRegisterRepository implements RegisterRepositoryPort {
   async save(userData: RegisterInput): Promise<void> {
     const user = userData.user
     const passwordHash = userData.passwordHash
@@ -18,7 +18,7 @@ export class DrizzleRegisterRepository implements RegisterPort {
         name: user.name,
         createdAt: user.createdAt,
       })
-      await tx.insert(passwordTable).values({
+      await tx.insert(userPasswordsTable).values({
         userId: userData.user.id,
         passwordHash: passwordHash,
       })

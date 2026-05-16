@@ -1,8 +1,8 @@
 import type { HasherPort } from '../../ports/hasher.port.js'
 import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
-import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
 import type { SessionStorePort } from '../../ports/session-store.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
+import type { UserPasswordRepositoryPort } from '../../ports/user-password.repository.port.js'
 import { InvalidCredentialsError } from './login-with-password.errors.js'
 
 export interface LoginWithPasswordInput {
@@ -23,7 +23,7 @@ export class LoginWithPasswordUseCase {
   constructor(
     private readonly userRepository: Pick<UserRepositoryPort, 'findByEmail'>,
     private readonly passwordRepository: Pick<
-      PasswordRepositoryPort,
+      UserPasswordRepositoryPort,
       'findByUserId'
     >,
     private readonly hash: Pick<HasherPort, 'compare'>,

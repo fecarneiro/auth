@@ -3,7 +3,7 @@ import { User } from '../../../domain/user.entity.js'
 import { InvalidEmailError } from '../../../domain/user.errors.js'
 import type { HasherPort } from '../../ports/hasher.port.js'
 import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
-import type { RegisterPort } from '../../ports/register.repository.port.js'
+import type { RegisterRepositoryPort } from '../../ports/register.repository.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { EmailAlreadyInUseError } from './register.errors.js'
 import { type RegisterInput, RegisterUseCase } from './register.use-case.js'
@@ -21,7 +21,7 @@ function makeSut() {
     hash: vi.fn(async () => 'hashed-password'),
   }
 
-  const RegisterRepository: Pick<RegisterPort, 'save'> = {
+  const RegisterRepository: Pick<RegisterRepositoryPort, 'save'> = {
     save: vi.fn(),
   }
 

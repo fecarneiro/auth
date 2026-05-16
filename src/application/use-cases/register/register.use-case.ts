@@ -1,7 +1,7 @@
 import { User } from '../../../domain/user.entity.js'
 import type { HasherPort } from '../../ports/hasher.port.js'
 import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
-import type { RegisterPort } from '../../ports/register.repository.port.js'
+import type { RegisterRepositoryPort } from '../../ports/register.repository.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
 import { EmailAlreadyInUseError } from './register.errors.js'
 
@@ -23,7 +23,7 @@ export class RegisterUseCase {
     private readonly idGenerator: Pick<IdGeneratorPort, 'generate'>,
     private readonly userRepository: Pick<UserRepositoryPort, 'findByEmail'>,
     private readonly hash: Pick<HasherPort, 'hash'>,
-    private readonly RegisterRepository: Pick<RegisterPort, 'save'>,
+    private readonly RegisterRepository: Pick<RegisterRepositoryPort, 'save'>,
   ) {}
 
   async execute(input: RegisterInput): Promise<RegisterOutput> {
