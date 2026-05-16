@@ -1,4 +1,4 @@
-import { LoginUseCase } from '../../application/use-cases/login/login.use-case.js'
+import { LoginWithPasswordUseCase } from '../../application/use-cases/login-with-password/login-with-password.use-case.js'
 import { BcryptHasher } from '../crypto/bcrypt-hasher.js'
 import { RandomSessionIdGenerator } from '../crypto/random-session-id-generator.js'
 import { DrizzlepasswordRepository } from '../database/repository/drizzle-password.repository.js'
@@ -12,7 +12,7 @@ export function makeLoginUseCase() {
   const randomSessionIdGenerator = new RandomSessionIdGenerator()
   const sessionStore = new RedisSessionStore()
 
-  return new LoginUseCase(
+  return new LoginWithPasswordUseCase(
     userRepository,
     passwordRepository,
     hasher,

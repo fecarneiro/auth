@@ -1,4 +1,4 @@
-import { InvalidCredentialsError } from '../../../application/use-cases/login/login-use-case.errors.js'
+import { InvalidCredentialsError } from '../../../application/use-cases/login-with-password/login-with-password.errors.js'
 import { EmailAlreadyInUseError } from '../../../application/use-cases/register/register.errors.js'
 import {
   InvalidEmailError,

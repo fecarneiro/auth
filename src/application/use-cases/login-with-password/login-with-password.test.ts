@@ -5,8 +5,11 @@ import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
 import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
 import type { SessionStorePort } from '../../ports/session-store.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
-import { type LoginInput, LoginUseCase } from './login.use-case.js'
-import { InvalidCredentialsError } from './login-use-case.errors.js'
+import { InvalidCredentialsError } from './login-with-password.errors.js'
+import {
+  type LoginWithPasswordInput,
+  LoginWithPasswordUseCase,
+} from './login-with-password.use-case.js'
 
 function makeSut() {
   const user = User.restore({
@@ -39,7 +42,7 @@ function makeSut() {
     create: vi.fn(),
   }
 
-  const sut = new LoginUseCase(
+  const sut = new LoginWithPasswordUseCase(
     userRepository,
     passwordRepository,
     hash,
@@ -61,7 +64,7 @@ describe('LoginUseCase', () => {
   it('should login successfully with valid credentials', async () => {
     const { sut, sessionStore } = makeSut()
 
-    const input: LoginInput = {
+    const input: LoginWithPasswordInput = {
       email: 'user@example.com',
       password: 'plain-password',
     }
@@ -88,7 +91,7 @@ describe('LoginUseCase', () => {
 
     vi.mocked(hash.compare).mockResolvedValueOnce(false)
 
-    const input: LoginInput = {
+    const input: LoginWithPasswordInput = {
       email: 'user@example.com',
       password: 'wrong-password',
     }
@@ -103,7 +106,7 @@ describe('LoginUseCase', () => {
 
     vi.mocked(userRepository.findByEmail).mockResolvedValueOnce(null)
 
-    const input: LoginInput = {
+    const input: LoginWithPasswordInput = {
       email: 'invalid@example.com',
       password: 'plain-password',
     }
@@ -119,7 +122,7 @@ describe('LoginUseCase', () => {
       makeSut()
 
     vi.mocked(passwordRepository.findByUserId).mockResolvedValueOnce(null)
-    const input: LoginInput = {
+    const input: LoginWithPasswordInput = {
       email: 'user@example.com',
       password: 'plain-password',
     }
@@ -135,7 +138,7 @@ describe('LoginUseCase', () => {
   it('should normalize email before finding user', async () => {
     const { sut, userRepository } = makeSut()
 
-    const input: LoginInput = {
+    const input: LoginWithPasswordInput = {
       email: 'useR@example.COM',
       password: 'plain-password',
     }

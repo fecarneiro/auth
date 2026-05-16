@@ -3,14 +3,14 @@ import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
 import type { PasswordRepositoryPort } from '../../ports/password.repository.port.js'
 import type { SessionStorePort } from '../../ports/session-store.port.js'
 import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
-import { InvalidCredentialsError } from './login-use-case.errors.js'
+import { InvalidCredentialsError } from './login-with-password.errors.js'
 
-export interface LoginInput {
+export interface LoginWithPasswordInput {
   email: string
   password: string
 }
 
-export interface LoginOutput {
+export interface LoginWithPasswordOutput {
   user: {
     id: string
     email: string
@@ -19,7 +19,7 @@ export interface LoginOutput {
   sessionId: string
 }
 
-export class LoginUseCase {
+export class LoginWithPasswordUseCase {
   constructor(
     private readonly userRepository: Pick<UserRepositoryPort, 'findByEmail'>,
     private readonly passwordRepository: Pick<
@@ -31,7 +31,9 @@ export class LoginUseCase {
     private readonly sessionStore: Pick<SessionStorePort, 'create'>,
   ) {}
 
-  async execute(input: LoginInput): Promise<LoginOutput> {
+  async execute(
+    input: LoginWithPasswordInput,
+  ): Promise<LoginWithPasswordOutput> {
     const email = input.email.trim().toLowerCase()
     const user = await this.userRepository.findByEmail(email)
 

@@ -1,6 +1,6 @@
 import { RegisterUseCase } from '../../application/use-cases/register/register.use-case.js'
 import { BcryptHasher } from '../crypto/bcrypt-hasher.js'
-import { UuidV7EntityIdGenerator } from '../crypto/uuid-v7-entity-id-generator copy.js'
+import { UuidV7EntityIdGenerator } from '../crypto/uuid-v7-entity-id-generator.js'
 import { DrizzleRegisterRepository } from '../database/repository/drizzle-register.repository.js'
 import { DrizzleUserRepository } from '../database/repository/drizzle-user.repository.js'
 
