@@ -1,4 +1,4 @@
-import type { OAuthClientPort } from '../../ports/oauth-client.port.js'
+import type { OAuthClientPort } from '../../ports/oauth/oauth-client.port.js'
 
 export interface StartOAuthLoginUseCaseInput {
   scopes: string[]

@@ -1,15 +1,15 @@
 import { eq } from 'drizzle-orm'
 import type {
-  UserPassword,
-  UserPasswordRepositoryPort,
-} from '../../../application/ports/user-password.repository.port.js'
+  PasswordCredential,
+  PasswordCredentialRepositoryPort,
+} from '../../../application/ports/password/password-credential.repository.port.js'
 import { db } from '../db.js'
-import { userPasswordsTable } from '../schema/user-password.schema.js'
+import { userPasswordsTable } from '../schemas/user-passwords.schema.js'
 
-export class DrizzleUserPasswordRepository
-  implements UserPasswordRepositoryPort
+export class DrizzlePasswordCredentialRepository
+  implements PasswordCredentialRepositoryPort
 {
-  async save(userData: UserPassword): Promise<void> {
+  async save(userData: PasswordCredential): Promise<void> {
     await db.insert(userPasswordsTable).values({
       userId: userData.userId,
       passwordHash: userData.passwordHash,

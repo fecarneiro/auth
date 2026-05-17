@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt'
-import type { HasherPort } from '../../application/ports/hasher.port.js'
+import type { PasswordHasherPort } from '../../application/ports/password/password-hasher.port.js'
 
 const SALT_ROUNDS = 10
 
-export class BcryptHasher implements HasherPort {
+export class BcryptPasswordHasher implements PasswordHasherPort {
   async hash(plain: string): Promise<string> {
     return bcrypt.hash(plain, SALT_ROUNDS)
   }

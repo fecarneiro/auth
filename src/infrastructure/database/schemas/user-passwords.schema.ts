@@ -1,5 +1,5 @@
 import { pgTable, uuid, varchar } from 'drizzle-orm/pg-core'
-import { usersTable } from './user.schema.js'
+import { usersTable } from './users.schema.js'
 
 export const userPasswordsTable = pgTable('user_passwords', {
   userId: uuid('user_id')

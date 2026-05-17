@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express'
 import type {
   AuthSession,
   SessionStorePort,
-} from '../../../application/ports/session-store.port.js'
+} from '../../../application/ports/session/session-store.port.js'
 
 declare module 'express' {
   interface Request {

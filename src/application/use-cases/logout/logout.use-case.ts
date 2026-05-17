@@ -1,4 +1,4 @@
-import type { SessionStorePort } from '../../ports/session-store.port.js'
+import type { SessionStorePort } from '../../ports/session/session-store.port.js'
 
 export class LogoutUseCase {
   constructor(

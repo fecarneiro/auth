@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 import { User } from '../../../domain/user.entity.js'
-import type { HasherPort } from '../../ports/hasher.port.js'
-import type { IdGeneratorPort } from '../../ports/id-generator.port.js'
-import type { SessionStorePort } from '../../ports/session-store.port.js'
-import type { UserRepositoryPort } from '../../ports/user.repository.port.js'
-import type { UserPasswordRepositoryPort } from '../../ports/user-password.repository.port.js'
+import type { PasswordCredentialRepositoryPort } from '../../ports/password/password-credential.repository.port.js'
+import type { PasswordHasherPort } from '../../ports/password/password-hasher.port.js'
+import type { SessionStorePort } from '../../ports/session/session-store.port.js'
+import type { IdGeneratorPort } from '../../ports/shared/id-generator.port.js'
+import type { UserRepositoryPort } from '../../ports/user/user.repository.port.js'
 import { InvalidCredentialsError } from './login-with-password.errors.js'
 import {
   type LoginWithPasswordInput,
@@ -23,14 +23,17 @@ function makeSut() {
     findByEmail: vi.fn(async () => user),
   }
 
-  const passwordRepository: Pick<UserPasswordRepositoryPort, 'findByUserId'> = {
+  const passwordRepository: Pick<
+    PasswordCredentialRepositoryPort,
+    'findByUserId'
+  > = {
     findByUserId: vi.fn(async () => ({
       userId: 'user-1',
       passwordHash: 'hashed-password',
     })),
   }
 
-  const hash: Pick<HasherPort, 'compare'> = {
+  const hash: Pick<PasswordHasherPort, 'compare'> = {
     compare: vi.fn(async () => true),
   }
 

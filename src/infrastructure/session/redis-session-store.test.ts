@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { AuthSession } from '../../application/ports/session-store.port.js'
+import type { AuthSession } from '../../application/ports/session/session-store.port.js'
 import {
   SESSION_PREFIX,
   SESSION_TTL_SECONDS,

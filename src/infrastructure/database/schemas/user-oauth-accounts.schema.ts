@@ -1,5 +1,5 @@
 import { pgEnum, pgTable, text, uuid } from 'drizzle-orm/pg-core'
-import { usersTable } from './user.schema.js'
+import { usersTable } from './users.schema.js'
 
 export const providersEnum = pgEnum('provider', ['github', 'google'])
 

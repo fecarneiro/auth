@@ -2,16 +2,16 @@ import cookieParser from 'cookie-parser'
 import express from 'express'
 import { makeLoginUseCase } from '../composition/make-login-with-password.js'
 import { makeLogoutUseCase } from '../composition/make-logout.js'
-import { makeRegisterUseCase } from '../composition/make-register.js'
+import { makeRegisterWithPasswordUseCase } from '../composition/make-register-with-password.js'
 import { RedisSessionStore } from '../session/redis-session-store.js'
 import { AuthMiddleware } from './middlewares/auth.middleware.js'
 import { errorMiddleware } from './middlewares/error.middleware.js'
 import { createAuthRouter } from './routes/auth.routes.js'
-import { createHealthCheck } from './routes/health.route.js'
+import { createHealthCheck } from './routes/health.routes.js'
 import { testRoute } from './routes/test.routes.js'
 
 const loginUseCase = makeLoginUseCase()
-const registerUseCase = makeRegisterUseCase()
+const registerUseCase = makeRegisterWithPasswordUseCase()
 const logoutUseCase = makeLogoutUseCase()
 
 export const app = express()

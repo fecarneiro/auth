@@ -1,4 +1,4 @@
-import type { User } from '../../domain/user.entity.js'
+import type { User } from '../../../domain/user.entity.js'
 
 export interface UserRepositoryPort {
   save(user: User): Promise<User | null>

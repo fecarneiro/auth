@@ -3,18 +3,18 @@ import type { Request, Response } from 'express'
 import { Router } from 'express'
 import type { LoginWithPasswordUseCase } from '../../../application/use-cases/login-with-password/login-with-password.use-case.js'
 import type { LogoutUseCase } from '../../../application/use-cases/logout/logout.use-case.js'
-import type { RegisterUseCase } from '../../../application/use-cases/register/register.use-case.js'
+import type { RegisterWithPasswordUseCase } from '../../../application/use-cases/register-with-password/register-with-password.use-case.js'
+import { google } from '../../oauth/google-oauth-client.js'
 import { AuthController } from '../controllers/auth.controller.js'
-import { google } from '../oauth/artic.js'
 
 export function createAuthRouter(
-  RegisterUseCase: RegisterUseCase,
+  registerUseCase: RegisterWithPasswordUseCase,
   loginUseCase: LoginWithPasswordUseCase,
   logoutUseCase: LogoutUseCase,
 ) {
   const router = Router()
   const controller = new AuthController(
-    RegisterUseCase,
+    registerUseCase,
     loginUseCase,
     logoutUseCase,
   )
