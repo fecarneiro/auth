@@ -1,13 +1,13 @@
 import { pgEnum, pgTable, text, uuid } from 'drizzle-orm/pg-core'
 import { usersTable } from './user.schema.js'
 
-const providersEnum = pgEnum('provider', ['github', 'google'])
+export const providersEnum = pgEnum('provider', ['github', 'google'])
 
-export const userPasswordsTable = pgTable('user_passwords', {
+export const userOAuthAccountsTable = pgTable('user_oauth_accounts', {
   id: uuid('id').primaryKey(),
   userId: uuid('user_id').references(() => usersTable.id, {
     onDelete: 'cascade',
   }),
   provider: providersEnum().notNull(),
-  providerUserIid: text().notNull().unique(),
+  providerUserId: text().notNull().unique(),
 })
