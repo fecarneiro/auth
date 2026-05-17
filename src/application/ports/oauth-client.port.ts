@@ -1,4 +1,4 @@
-export type OAuthProvider = 'google' | 'github'
+import type { OAuthProvider } from './oauth-provider.js'
 
 export interface OAuthIdentity {
   provider: OAuthProvider
