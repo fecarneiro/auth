@@ -9,8 +9,16 @@ export interface OAuthIdentity {
   pictureUrl: string | null
 }
 
-export interface OAuthProviderPort {
-  createAuthorizationURL(input: { state: string; codeVerifier: string }): URL
+export interface OAuthClientPort {
+  generateState(): string
+  generateCodeVerifier(): string
+
+  createAuthorizationURL(input: {
+    state: string
+    codeVerifier: string
+    scopes: string[]
+  }): URL
+
   getIdentityFromAuthorizationCode(input: {
     code: string
     codeVerifier: string
