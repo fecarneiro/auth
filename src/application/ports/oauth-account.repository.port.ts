@@ -1,4 +1,4 @@
-import type { OAuthProvider } from './oauth-client.port.js'
+import type { OAuthProvider } from './oauth-provider.js'
 
 export interface OAuthAccount {
   id: string
@@ -10,7 +10,7 @@ export interface OAuthAccount {
 export interface OAuthAccountRepositoryPort {
   save(account: OAuthAccount): Promise<void>
 
-  findByProviderAccount(input: {
+  findByProviderIdentity(input: {
     provider: OAuthProvider
     providerUserId: string
   }): Promise<OAuthAccount | null>
