@@ -16,12 +16,14 @@ export class AuthMiddleware {
   validate = async (req: Request, res: Response, next: NextFunction) => {
     const sessionId = req.cookies.sid
     if (!sessionId) {
-      return res.status(401).json({ message: 'Unauthorized' })
+      res.status(401).json({ message: 'Unauthorized' })
+      return
     }
 
     const session = await this.sessionStore.findById(sessionId)
     if (!session) {
-      return res.status(401).json({ message: 'Unauthorized' })
+      res.status(401).json({ message: 'Unauthorized' })
+      return
     }
 
     req.user = session
