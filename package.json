@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "tsx watch --env-file=.env src/infrastructure/http/server.ts",
-    "typecheck": "tsc --noEmit",
-    "build": "tsc",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/infrastructure/http/server.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "pnpm exec biome check",
-    "check:fix": "pnpm exec biome check --write --unsafe",
+    "check:fix": "pnpm exec biome check --write",
     "prepare": "husky"
   },
   "packageManager": "pnpm@11.1.1",
@@ -28,7 +28,6 @@
     "cookie-parser": "^1.4.7",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
-    "install": "^0.13.0",
     "pg": "^8.20.0",
     "redis": "^5.12.1",
     "uuid": "^14.0.0"
@@ -42,9 +41,13 @@
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.5"
+  },
+  "lint-staged": {
+    "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": "biome check --write --no-errors-on-unmatched"
   },
   "author": "Felipe Carneiro",
   "license": "MIT"

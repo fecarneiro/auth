@@ -7,7 +7,15 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["src/**/*.ts"]
+    "includes": [
+      "src/**/*.ts",
+      "*.json",
+      "*.jsonc",
+      ".vscode/**/*.json",
+      "!!**/dist",
+      "!!**/build",
+      "!!**/coverage"
+    ]
   },
   "formatter": {
     "enabled": true,

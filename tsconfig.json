@@ -1,22 +1,29 @@
 {
   "$schema": "https://www.schemastore.org/tsconfig",
-  "_version": "24.0.0",
 
   "compilerOptions": {
-    "lib": [
-      "es2024",
-      "ESNext.Array",
-      "ESNext.Collection",
-      "ESNext.Error",
-      "ESNext.Iterator",
-      "ESNext.Promise"
-    ],
-    "module": "nodenext",
-    "target": "es2024",
+    "target": "ES2024",
+    "lib": ["ES2024"],
+
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
 
     "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
     "esModuleInterop": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "moduleResolution": "node16"
-  }
+
+    "types": ["node"],
+    "sourceMap": true,
+    "noEmit": true
+  },
+
+  "include": ["src/**/*.ts", "drizzle.config.ts"]
 }
