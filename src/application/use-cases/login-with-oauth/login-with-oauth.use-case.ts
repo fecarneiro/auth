@@ -23,11 +23,10 @@ export interface LoginWithOAuthUseCaseOutput {
 
 export class LoginWithOAuthUseCase {
   constructor(
-    readonly oauthConnectionRepository: OAuthConnectionRepositoryPort,
-    readonly accountRepository: Pick<AccountRepositoryPort, 'findById'>,
+    private readonly oauthConnectionRepository: OAuthConnectionRepositoryPort,
+    private readonly accountRepository: Pick<AccountRepositoryPort, 'findById'>,
     private readonly sessionIdGenerator: IdGeneratorPort,
-
-    readonly sessionStore: Pick<SessionStorePort, 'create'>,
+    private readonly sessionStore: Pick<SessionStorePort, 'create'>,
   ) {}
 
   async execute(

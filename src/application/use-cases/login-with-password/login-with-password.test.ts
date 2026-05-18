@@ -6,8 +6,8 @@ import type { SessionStorePort } from '../../ports/session/session-store.port.js
 import type { IdGeneratorPort } from '../../ports/shared/id-generator.port.js'
 import { InvalidCredentialsError } from './login-with-password.errors.js'
 import {
-  type LoginWithPasswordInput,
   LoginWithPasswordUseCase,
+  type LoginWithPasswordUseCaseInput,
 } from './login-with-password.use-case.js'
 
 function makeSut() {
@@ -56,7 +56,7 @@ describe('LoginUseCase', () => {
   it('should login successfully with valid credentials', async () => {
     const { sut, sessionStore } = makeSut()
 
-    const input: LoginWithPasswordInput = {
+    const input: LoginWithPasswordUseCaseInput = {
       email: 'user@example.com',
       password: 'plain-password',
     }
@@ -83,7 +83,7 @@ describe('LoginUseCase', () => {
 
     vi.mocked(hash.compare).mockResolvedValueOnce(false)
 
-    const input: LoginWithPasswordInput = {
+    const input: LoginWithPasswordUseCaseInput = {
       email: 'user@example.com',
       password: 'wrong-password',
     }
@@ -97,7 +97,7 @@ describe('LoginUseCase', () => {
 
     vi.mocked(accountRepository.findByEmail).mockResolvedValueOnce(null)
 
-    const input: LoginWithPasswordInput = {
+    const input: LoginWithPasswordUseCaseInput = {
       email: 'invalid@example.com',
       password: 'plain-password',
     }
@@ -128,7 +128,7 @@ describe('LoginUseCase', () => {
       oauthOnlyAccount,
     )
 
-    const input: LoginWithPasswordInput = {
+    const input: LoginWithPasswordUseCaseInput = {
       email: 'user@example.com',
       password: 'plain-password',
     }
@@ -141,7 +141,7 @@ describe('LoginUseCase', () => {
   it('should normalize email before finding account', async () => {
     const { sut, accountRepository } = makeSut()
 
-    const input: LoginWithPasswordInput = {
+    const input: LoginWithPasswordUseCaseInput = {
       email: 'useR@example.COM',
       password: 'plain-password',
     }

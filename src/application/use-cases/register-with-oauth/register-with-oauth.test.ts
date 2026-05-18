@@ -32,12 +32,9 @@ function makeSut() {
     createWithOAuthConnection: vi.fn(),
   }
 
-  const accountIdGenerator: IdGeneratorPort = {
-    generate: vi.fn(() => 'account-1'),
-  }
-
-  const oauthConnectionIdGenerator: IdGeneratorPort = {
-    generate: vi.fn(() => 'oauth-connection-1'),
+  let generatedIdCount = 0
+  const idGenerator: IdGeneratorPort = {
+    generate: vi.fn(() => `generated-id-${++generatedIdCount}`),
   }
 
   const sessionIdGenerator: IdGeneratorPort = {
@@ -52,8 +49,7 @@ function makeSut() {
     oauthConnectionRepository,
     accountRepository,
     accountRegistrationRepository,
-    accountIdGenerator,
-    oauthConnectionIdGenerator,
+    idGenerator,
     sessionIdGenerator,
     sessionStore,
   )
@@ -63,8 +59,7 @@ function makeSut() {
     oauthConnectionRepository,
     accountRepository,
     accountRegistrationRepository,
-    accountIdGenerator,
-    oauthConnectionIdGenerator,
+    idGenerator,
     sessionStore,
   }
 }
@@ -96,7 +91,7 @@ describe('RegisterWithOAuthUseCase', () => {
       accountRegistrationRepository.createWithOAuthConnection,
     ).toHaveBeenCalledWith({
       account: expect.objectContaining({
-        id: 'account-1',
+        id: 'generated-id-1',
         email: 'user@example.com',
         name: 'User Example',
         passwordHash: null,
@@ -109,19 +104,19 @@ describe('RegisterWithOAuthUseCase', () => {
         createdAt: expect.any(Date),
       }),
       oauthConnection: {
-        id: 'oauth-connection-1',
-        accountId: 'account-1',
+        id: 'generated-id-2',
+        accountId: 'generated-id-1',
         provider: 'google',
         providerUserId: 'google-user-1',
       },
     })
     expect(sessionStore.create).toHaveBeenCalledWith({
       id: 'session-1',
-      accountId: 'account-1',
+      accountId: 'generated-id-1',
     })
     expect(output).toEqual({
       account: {
-        id: 'account-1',
+        id: 'generated-id-1',
         email: 'user@example.com',
         name: 'User Example',
       },
@@ -135,7 +130,7 @@ describe('RegisterWithOAuthUseCase', () => {
       accountRepository,
       accountRegistrationRepository,
       oauthConnectionRepository,
-      accountIdGenerator,
+      idGenerator,
       sessionStore,
     } = makeSut()
 
@@ -154,12 +149,12 @@ describe('RegisterWithOAuthUseCase', () => {
 
     const output = await sut.execute(input)
 
-    expect(accountIdGenerator.generate).not.toHaveBeenCalled()
+    expect(idGenerator.generate).toHaveBeenCalledTimes(1)
     expect(
       accountRegistrationRepository.createWithOAuthConnection,
     ).not.toHaveBeenCalled()
     expect(oauthConnectionRepository.save).toHaveBeenCalledWith({
-      id: 'oauth-connection-1',
+      id: 'generated-id-1',
       accountId: 'account-existing',
       provider: 'google',
       providerUserId: 'google-user-1',

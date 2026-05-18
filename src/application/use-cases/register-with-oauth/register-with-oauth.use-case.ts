@@ -35,8 +35,7 @@ export class RegisterWithOAuthUseCase {
       AccountRegistrationRepositoryPort,
       'createWithOAuthConnection'
     >,
-    private readonly accountIdGenerator: IdGeneratorPort,
-    private readonly oauthConnectionIdGenerator: IdGeneratorPort,
+    private readonly idGenerator: IdGeneratorPort,
     private readonly sessionIdGenerator: IdGeneratorPort,
     private readonly sessionStore: Pick<SessionStorePort, 'create'>,
   ) {}
@@ -73,7 +72,7 @@ export class RegisterWithOAuthUseCase {
       const sessionId = this.sessionIdGenerator.generate()
 
       await this.oauthConnectionRepository.save({
-        id: this.oauthConnectionIdGenerator.generate(),
+        id: this.idGenerator.generate(),
         accountId: snapshot.id,
         provider,
         providerUserId,
@@ -95,7 +94,7 @@ export class RegisterWithOAuthUseCase {
     }
 
     const account = Account.registerWithOAuth({
-      id: this.accountIdGenerator.generate(),
+      id: this.idGenerator.generate(),
       email,
       name: input.identity.name ?? email,
       oauthConnection: {
@@ -111,7 +110,7 @@ export class RegisterWithOAuthUseCase {
     await this.accountRegistrationRepository.createWithOAuthConnection({
       account: snapshot,
       oauthConnection: {
-        id: this.oauthConnectionIdGenerator.generate(),
+        id: this.idGenerator.generate(),
         accountId: snapshot.id,
         provider,
         providerUserId,

@@ -5,12 +5,12 @@ import type { SessionStorePort } from '../../ports/session/session-store.port.js
 import type { IdGeneratorPort } from '../../ports/shared/id-generator.port.js'
 import { InvalidCredentialsError } from './login-with-password.errors.js'
 
-export interface LoginWithPasswordInput {
+export interface LoginWithPasswordUseCaseInput {
   email: string
   password: string
 }
 
-export interface LoginWithPasswordOutput {
+export interface LoginWithPasswordUseCaseOutput {
   account: {
     id: string
     email: string
@@ -31,8 +31,8 @@ export class LoginWithPasswordUseCase {
   ) {}
 
   async execute(
-    input: LoginWithPasswordInput,
-  ): Promise<LoginWithPasswordOutput> {
+    input: LoginWithPasswordUseCaseInput,
+  ): Promise<LoginWithPasswordUseCaseOutput> {
     const email = AccountEmail.normalize(input.email)
     const account = await this.accountRepository.findByEmail(email)
 

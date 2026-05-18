@@ -1,11 +1,13 @@
+import {
+  OAuthConnectionNotFoundError,
+  OAuthLinkedAccountNotFoundError,
+} from '../../../application/use-cases/login-with-oauth/login-with-oauth.errors.js'
 import { InvalidCredentialsError } from '../../../application/use-cases/login-with-password/login-with-password.errors.js'
 import {
   OAuthConnectionAlreadyExistsError,
-  OAuthConnectionNotFoundError,
   OAuthEmailNotProvidedError,
   OAuthEmailNotVerifiedError,
-  OAuthLinkedAccountNotFoundError,
-} from '../../../application/use-cases/oauth.errors.js'
+} from '../../../application/use-cases/register-with-oauth/register-with-oauth.errors.js'
 import { EmailAlreadyInUseError } from '../../../application/use-cases/register-with-password/register-with-password.errors.js'
 import {
   InvalidEmailError,
