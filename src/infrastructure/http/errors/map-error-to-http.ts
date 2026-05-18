@@ -1,15 +1,16 @@
 import { ZodError } from 'zod'
-import { AuthenticatedAccountNotFoundError } from '../../../application/use-cases/get-authenticated-account/get-authenticated-account.errors.js'
 import {
-  OAuthConnectionNotFoundError,
-  OAuthLinkedAccountNotFoundError,
-} from '../../../application/use-cases/login-with-oauth/login-with-oauth.errors.js'
-import { InvalidCredentialsError } from '../../../application/use-cases/login-with-password/login-with-password.errors.js'
-import {
-  OAuthConnectionAlreadyExistsError,
+  OAuthEmailAlreadyRegisteredError,
   OAuthEmailNotProvidedError,
   OAuthEmailNotVerifiedError,
-} from '../../../application/use-cases/register-with-oauth/register-with-oauth.errors.js'
+  OAuthLinkedAccountNotFoundError,
+} from '../../../application/use-cases/authenticate-with-oauth/authenticate-with-oauth.errors.js'
+import { AuthenticatedAccountNotFoundError } from '../../../application/use-cases/get-authenticated-account/get-authenticated-account.errors.js'
+import {
+  LinkAccountNotFoundError,
+  OAuthConnectionAlreadyExistsError,
+} from '../../../application/use-cases/link-oauth-provider/link-oauth-provider.errors.js'
+import { InvalidCredentialsError } from '../../../application/use-cases/login-with-password/login-with-password.errors.js'
 import { EmailAlreadyInUseError } from '../../../application/use-cases/register-with-password/register-with-password.errors.js'
 import {
   InvalidEmailError,
@@ -49,20 +50,20 @@ export function mapErrorToHttp(err: unknown): AppError {
     return new AppError(err.message, httpStatusCode.CONFLICT)
   }
 
-  if (err instanceof OAuthConnectionNotFoundError) {
-    return new AppError(err.message, httpStatusCode.UNAUTHORIZED)
-  }
-
-  if (err instanceof OAuthLinkedAccountNotFoundError) {
-    return new AppError(err.message, httpStatusCode.NOT_FOUND)
-  }
-
   if (err instanceof OAuthEmailNotProvidedError) {
     return new AppError(err.message, httpStatusCode.BAD_REQUEST)
   }
 
   if (err instanceof OAuthEmailNotVerifiedError) {
     return new AppError(err.message, httpStatusCode.BAD_REQUEST)
+  }
+
+  if (err instanceof OAuthEmailAlreadyRegisteredError) {
+    return new AppError(err.message, httpStatusCode.CONFLICT)
+  }
+
+  if (err instanceof OAuthLinkedAccountNotFoundError) {
+    return new AppError(err.message, httpStatusCode.NOT_FOUND)
   }
 
   if (err instanceof OAuthConnectionAlreadyExistsError) {
@@ -73,8 +74,19 @@ export function mapErrorToHttp(err: unknown): AppError {
     return new AppError(err.message, httpStatusCode.CONFLICT)
   }
 
+  if (err instanceof LinkAccountNotFoundError) {
+    return new AppError(err.message, httpStatusCode.NOT_FOUND)
+  }
+
   if (err instanceof ZodError) {
-    const fields = err.issues.map((issue) => issue.path.join('.')).join(', ')
+    const fields = err.issues
+      .map((issue) =>
+        issue.code === 'unrecognized_keys'
+          ? issue.keys.join(', ')
+          : issue.path.join('.'),
+      )
+      .filter((field) => field.length > 0)
+      .join(', ')
     return new AppError(
       `Invalid request body: ${fields}`,
       httpStatusCode.BAD_REQUEST,

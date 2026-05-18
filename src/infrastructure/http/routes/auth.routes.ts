@@ -1,11 +1,12 @@
 import * as arctic from 'arctic'
 import type { Request, RequestHandler, Response } from 'express'
 import { Router } from 'express'
+import type { SessionStorePort } from '../../../application/ports/session/session-store.port.js'
+import type { AuthenticateWithOAuthUseCase } from '../../../application/use-cases/authenticate-with-oauth/authenticate-with-oauth.use-case.js'
 import type { GetAuthenticatedAccountUseCase } from '../../../application/use-cases/get-authenticated-account/get-authenticated-account.use-case.js'
-import type { LoginWithOAuthUseCase } from '../../../application/use-cases/login-with-oauth/login-with-oauth.use-case.js'
+import type { LinkOAuthProviderUseCase } from '../../../application/use-cases/link-oauth-provider/link-oauth-provider.use-case.js'
 import type { LoginWithPasswordUseCase } from '../../../application/use-cases/login-with-password/login-with-password.use-case.js'
 import type { LogoutUseCase } from '../../../application/use-cases/logout/logout.use-case.js'
-import type { RegisterWithOAuthUseCase } from '../../../application/use-cases/register-with-oauth/register-with-oauth.use-case.js'
 import type { RegisterWithPasswordUseCase } from '../../../application/use-cases/register-with-password/register-with-password.use-case.js'
 import {
   createGoogleAuthorizationURL,
@@ -18,10 +19,11 @@ export function createAuthRouter(
   registerUseCase: RegisterWithPasswordUseCase,
   loginUseCase: LoginWithPasswordUseCase,
   logoutUseCase: LogoutUseCase,
-  registerWithOAuthUseCase: RegisterWithOAuthUseCase,
-  loginWithOAuthUseCase: LoginWithOAuthUseCase,
+  authenticateWithOAuthUseCase: AuthenticateWithOAuthUseCase,
+  linkOAuthProviderUseCase: LinkOAuthProviderUseCase,
   getAuthenticatedAccountUseCase: GetAuthenticatedAccountUseCase,
   authMiddleware: RequestHandler,
+  sessionStore: Pick<SessionStorePort, 'findById'>,
 ) {
   const router = Router()
   const controller = new AuthController(
@@ -47,12 +49,12 @@ export function createAuthRouter(
     return controller.me(req, res)
   })
 
-  router.get('/google/login', (_req: Request, res: Response) => {
-    return startGoogleOAuthFlow(res, 'login')
+  router.get('/google', (_req: Request, res: Response) => {
+    return startGoogleOAuthFlow(res, 'continue')
   })
 
-  router.get('/google/register', (_req: Request, res: Response) => {
-    return startGoogleOAuthFlow(res, 'register')
+  router.get('/google/link', authMiddleware, (_req: Request, res: Response) => {
+    return startGoogleOAuthFlow(res, 'link')
   })
 
   router.get('/google/callback', async (req: Request, res: Response) => {
@@ -60,14 +62,14 @@ export function createAuthRouter(
     const state = req.query.state
     const storedState = req.cookies.oauth_state ?? null
     const storedCodeVerifier = req.cookies.oauth_code_verifier ?? null
-    const intent = req.cookies.oauth_intent ?? null
+    const purpose = req.cookies.oauth_purpose ?? null
 
     if (
       typeof code !== 'string' ||
       typeof storedState !== 'string' ||
       state !== storedState ||
       typeof storedCodeVerifier !== 'string' ||
-      !isOAuthIntent(intent)
+      !isOAuthPurpose(purpose)
     ) {
       return res.status(400).json({ message: 'Invalid request' })
     }
@@ -77,14 +79,31 @@ export function createAuthRouter(
       codeVerifier: storedCodeVerifier,
     })
 
-    const result =
-      intent === 'login'
-        ? await loginWithOAuthUseCase.execute({ identity })
-        : await registerWithOAuthUseCase.execute({ identity })
-
     res.clearCookie('oauth_state')
     res.clearCookie('oauth_code_verifier')
-    res.clearCookie('oauth_intent')
+    res.clearCookie('oauth_purpose')
+
+    if (purpose === 'link') {
+      const sessionId = req.cookies.sid
+      const session =
+        typeof sessionId === 'string'
+          ? await sessionStore.findById(sessionId)
+          : null
+
+      if (!session) {
+        return res.status(401).json({ message: 'Unauthorized' })
+      }
+
+      const linked = await linkOAuthProviderUseCase.execute({
+        accountId: session.accountId,
+        identity,
+      })
+
+      return res.status(200).json(linked.account)
+    }
+
+    const result = await authenticateWithOAuthUseCase.execute({ identity })
+
     res.cookie('sid', result.sessionId, cookieOptions)
 
     return res.status(200).json(result.account)
@@ -93,14 +112,14 @@ export function createAuthRouter(
   return router
 }
 
-type OAuthIntent = 'login' | 'register'
+type OAuthPurpose = 'continue' | 'link'
 
 const oauthCookieOptions = {
   ...cookieOptions,
   maxAge: 60 * 10 * 1000,
 }
 
-function startGoogleOAuthFlow(res: Response, intent: OAuthIntent) {
+function startGoogleOAuthFlow(res: Response, purpose: OAuthPurpose) {
   const state = arctic.generateState()
   const codeVerifier = arctic.generateCodeVerifier()
   const scopes = ['openid', 'profile', 'email']
@@ -112,11 +131,11 @@ function startGoogleOAuthFlow(res: Response, intent: OAuthIntent) {
 
   res.cookie('oauth_state', state, oauthCookieOptions)
   res.cookie('oauth_code_verifier', codeVerifier, oauthCookieOptions)
-  res.cookie('oauth_intent', intent, oauthCookieOptions)
+  res.cookie('oauth_purpose', purpose, oauthCookieOptions)
 
   return res.redirect(url.toString())
 }
 
-function isOAuthIntent(value: unknown): value is OAuthIntent {
-  return value === 'login' || value === 'register'
+function isOAuthPurpose(value: unknown): value is OAuthPurpose {
+  return value === 'continue' || value === 'link'
 }

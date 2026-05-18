@@ -7,9 +7,11 @@ export function errorMiddleware(
   res: Response,
   _next: NextFunction,
 ) {
-  console.error(err)
-
   const appError = mapErrorToHttp(err)
+
+  if (appError.statusCode >= 500) {
+    console.error(err)
+  }
 
   return res.status(appError.statusCode).json({
     message: appError.message,

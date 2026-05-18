@@ -19,10 +19,11 @@ app.use(
     compositionRoot.registerWithPasswordUseCase,
     compositionRoot.loginWithPasswordUseCase,
     compositionRoot.logoutUseCase,
-    compositionRoot.registerWithOAuthUseCase,
-    compositionRoot.loginWithOAuthUseCase,
+    compositionRoot.authenticateWithOAuthUseCase,
+    compositionRoot.linkOAuthProviderUseCase,
     compositionRoot.getAuthenticatedAccountUseCase,
     authMiddleware.validate,
+    compositionRoot.sessionStore,
   ),
 )
 
