@@ -31,8 +31,6 @@ export function createAuthRouter(
     return controller.logout(req, res)
   })
 
-  //error handling https://arcticjs.dev/providers/google
-
   router.get('/google', (_req: Request, res: Response) => {
     const state = arctic.generateState()
     const codeVerifier = arctic.generateCodeVerifier()
@@ -40,7 +38,6 @@ export function createAuthRouter(
     const scopes = ['openid', 'profile', 'email']
 
     const url = google.createAuthorizationURL(state, codeVerifier, scopes)
-    // url.searchParams.set('access_type', 'offline')
 
     res.cookie('state', state, {
       secure: true,
@@ -60,8 +57,6 @@ export function createAuthRouter(
   })
 
   router.get('/google/callback', async (req: Request, res: Response) => {
-    // Refresh token pending
-    // Remove cookies pending
     const code = req.query.code
     const state = req.query.state
     const storedState = req.cookies.state ?? null
