@@ -13,8 +13,9 @@ export class DrizzleAccountRegistrationRepository
     >[0],
   ): Promise<void> {
     const { account } = input
+    const { passwordHash } = account
 
-    if (account.passwordHash === null) {
+    if (passwordHash === null) {
       throw new Error(
         'createWithPassword requires an account that has a password',
       )
@@ -29,7 +30,7 @@ export class DrizzleAccountRegistrationRepository
       })
       await tx.insert(accountPasswordsTable).values({
         accountId: account.id,
-        passwordHash: account.passwordHash,
+        passwordHash,
       })
     })
   }

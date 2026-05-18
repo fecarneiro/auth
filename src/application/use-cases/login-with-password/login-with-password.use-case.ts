@@ -1,3 +1,4 @@
+import { AccountEmail } from '../../../domain/account-email.vo.js'
 import type { AccountRepositoryPort } from '../../ports/account/account.repository.port.js'
 import type { PasswordHasherPort } from '../../ports/password/password-hasher.port.js'
 import type { SessionStorePort } from '../../ports/session/session-store.port.js'
@@ -32,7 +33,7 @@ export class LoginWithPasswordUseCase {
   async execute(
     input: LoginWithPasswordInput,
   ): Promise<LoginWithPasswordOutput> {
-    const email = input.email.trim().toLowerCase()
+    const email = AccountEmail.normalize(input.email)
     const account = await this.accountRepository.findByEmail(email)
 
     if (!account) throw new InvalidCredentialsError()

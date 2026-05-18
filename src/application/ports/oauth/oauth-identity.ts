@@ -1,4 +1,4 @@
-import type { OAuthProvider } from './oauth-provider.js'
+import type { OAuthProvider } from '../../../domain/account.entity.js'
 
 export interface OAuthIdentity {
   provider: OAuthProvider

@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import type { AccountRepositoryPort } from '../../../application/ports/account/account.repository.port.js'
 import type { OAuthConnection } from '../../../domain/account.entity.js'
 import { Account } from '../../../domain/account.entity.js'
+import { AccountEmail } from '../../../domain/account-email.vo.js'
 import { db } from '../db.js'
 import { accountOAuthConnectionsTable } from '../schemas/account-oauth-connections.schema.js'
 import { accountPasswordsTable } from '../schemas/account-passwords.schema.js'
@@ -28,7 +29,7 @@ export class DrizzleAccountRepository implements AccountRepositoryPort {
         accountOAuthConnectionsTable,
         eq(accountOAuthConnectionsTable.accountId, accountsTable.id),
       )
-      .where(eq(accountsTable.email, email.toLowerCase().trim()))
+      .where(eq(accountsTable.email, AccountEmail.normalize(email)))
 
     return restoreAccountFromRows(rows)
   }

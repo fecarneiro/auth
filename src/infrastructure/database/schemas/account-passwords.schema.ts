@@ -5,5 +5,5 @@ export const accountPasswordsTable = pgTable('account_passwords', {
   accountId: uuid('account_id')
     .primaryKey()
     .references(() => accountsTable.id, { onDelete: 'cascade' }),
-  passwordHash: varchar('password_hash', { length: 255 }),
+  passwordHash: varchar('password_hash', { length: 255 }).notNull(),
 })

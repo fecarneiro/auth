@@ -23,7 +23,7 @@ const sesionStore = new RedisSessionStore()
 const authMiddleware = new AuthMiddleware(sesionStore)
 
 app.use(express.json())
-app.use(cookieParser('secret'))
+app.use(cookieParser())
 
 app.use('/health', createHealthCheck())
 app.use(
