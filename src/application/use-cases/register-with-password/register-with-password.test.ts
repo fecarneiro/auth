@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { User } from '../../../domain/user.entity.js'
-import { InvalidEmailError } from '../../../domain/user.errors.js'
+import { Account } from '../../../domain/account/account.entity.js'
+import { InvalidEmailError } from '../../../domain/account/account.errors.js'
+import type { AccountRepositoryPort } from '../../ports/account/account.repository.port.js'
+import type { AccountRegistrationRepositoryPort } from '../../ports/account/account-registration.repository.port.js'
 import type { PasswordHasherPort } from '../../ports/password/password-hasher.port.js'
 import type { IdGeneratorPort } from '../../ports/shared/id-generator.port.js'
-import type { UserRepositoryPort } from '../../ports/user/user.repository.port.js'
-import type { UserRegistrationRepositoryPort } from '../../ports/user/user-registration.repository.port.js'
 import { EmailAlreadyInUseError } from './register-with-password.errors.js'
 import {
   RegisterWithPasswordUseCase,
@@ -16,7 +16,7 @@ function makeSut() {
     generate: vi.fn(() => 'generated-id'),
   }
 
-  const userRepository: Pick<UserRepositoryPort, 'findByEmail'> = {
+  const accountRepository: Pick<AccountRepositoryPort, 'findByEmail'> = {
     findByEmail: vi.fn(async () => null),
   }
 
@@ -24,8 +24,8 @@ function makeSut() {
     hash: vi.fn(async () => 'hashed-password'),
   }
 
-  const userRegistrationRepository: Pick<
-    UserRegistrationRepositoryPort,
+  const accountRegistrationRepository: Pick<
+    AccountRegistrationRepositoryPort,
     'createWithPassword'
   > = {
     createWithPassword: vi.fn(),
@@ -33,22 +33,22 @@ function makeSut() {
 
   const sut = new RegisterWithPasswordUseCase(
     idGenerator,
-    userRepository,
+    accountRepository,
     hash,
-    userRegistrationRepository,
+    accountRegistrationRepository,
   )
   return {
     sut,
     idGenerator,
-    userRepository,
+    accountRepository,
     hash,
-    userRegistrationRepository,
+    accountRegistrationRepository,
   }
 }
 
 describe('RegisterWithPasswordUseCase', () => {
-  it('should successfully register a new user', async () => {
-    const { sut, userRegistrationRepository, hash } = makeSut()
+  it('should successfully register a new account', async () => {
+    const { sut, accountRegistrationRepository, hash } = makeSut()
 
     const input: RegisterWithPasswordUseCaseInput = {
       email: 'user@example.com',
@@ -67,24 +67,24 @@ describe('RegisterWithPasswordUseCase', () => {
 
     expect(hash.hash).toHaveBeenCalledWith('password123')
 
-    expect(userRegistrationRepository.createWithPassword).toHaveBeenCalledWith(
+    expect(
+      accountRegistrationRepository.createWithPassword,
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
-        user: expect.objectContaining({
+        account: expect.objectContaining({
           id: 'generated-id',
           email: 'user@example.com',
           name: 'User Example',
           createdAt: expect.any(Date),
-        }),
-        passwordCredential: {
-          userId: 'generated-id',
           passwordHash: 'hashed-password',
-        },
+          oauthConnections: [],
+        }),
       }),
     )
   })
 
   it('should fail when email is invalid', async () => {
-    const { sut, userRegistrationRepository, hash } = makeSut()
+    const { sut, accountRegistrationRepository, hash } = makeSut()
 
     const input: RegisterWithPasswordUseCaseInput = {
       email: 'wrongexample.com',
@@ -94,7 +94,9 @@ describe('RegisterWithPasswordUseCase', () => {
 
     await expect(sut.execute(input)).rejects.toThrow(InvalidEmailError)
 
-    expect(userRegistrationRepository.createWithPassword).not.toHaveBeenCalled()
+    expect(
+      accountRegistrationRepository.createWithPassword,
+    ).not.toHaveBeenCalled()
     expect(hash.hash).not.toHaveBeenCalled()
   })
 
@@ -102,19 +104,23 @@ describe('RegisterWithPasswordUseCase', () => {
     const {
       sut,
       idGenerator,
-      userRepository,
-      userRegistrationRepository,
+      accountRepository,
+      accountRegistrationRepository,
       hash,
     } = makeSut()
 
-    const existingUser = User.restore({
-      id: 'user-1',
+    const existingAccount = Account.restore({
+      id: 'account-1',
       email: 'user@example.com',
       name: 'User Example',
       createdAt: new Date('2026-01-01'),
+      passwordHash: 'hashed-password',
+      oauthConnections: [],
     })
 
-    vi.mocked(userRepository.findByEmail).mockResolvedValueOnce(existingUser)
+    vi.mocked(accountRepository.findByEmail).mockResolvedValueOnce(
+      existingAccount,
+    )
 
     const input: RegisterWithPasswordUseCaseInput = {
       email: 'user@example.com',
@@ -123,14 +129,18 @@ describe('RegisterWithPasswordUseCase', () => {
     }
 
     await expect(sut.execute(input)).rejects.toThrow(EmailAlreadyInUseError)
-    expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com')
+    expect(accountRepository.findByEmail).toHaveBeenCalledWith(
+      'user@example.com',
+    )
     expect(hash.hash).not.toHaveBeenCalled()
-    expect(userRegistrationRepository.createWithPassword).not.toHaveBeenCalled()
+    expect(
+      accountRegistrationRepository.createWithPassword,
+    ).not.toHaveBeenCalled()
     expect(idGenerator.generate).not.toHaveBeenCalled()
   })
 
-  it('should normalize email before checking if user already exists', async () => {
-    const { sut, userRepository } = makeSut()
+  it('should normalize email before checking if account already exists', async () => {
+    const { sut, accountRepository } = makeSut()
 
     const input: RegisterWithPasswordUseCaseInput = {
       email: 'usEr@EXample.com',
@@ -140,6 +150,8 @@ describe('RegisterWithPasswordUseCase', () => {
 
     await sut.execute(input)
 
-    expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com')
+    expect(accountRepository.findByEmail).toHaveBeenCalledWith(
+      'user@example.com',
+    )
   })
 })

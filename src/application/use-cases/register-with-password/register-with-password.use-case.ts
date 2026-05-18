@@ -1,8 +1,9 @@
-import { User } from '../../../domain/user.entity.js'
+import { Account } from '../../../domain/account/account.entity.js'
+import { AccountEmail } from '../../../domain/account/account-email.vo.js'
+import type { AccountRepositoryPort } from '../../ports/account/account.repository.port.js'
+import type { AccountRegistrationRepositoryPort } from '../../ports/account/account-registration.repository.port.js'
 import type { PasswordHasherPort } from '../../ports/password/password-hasher.port.js'
 import type { IdGeneratorPort } from '../../ports/shared/id-generator.port.js'
-import type { UserRepositoryPort } from '../../ports/user/user.repository.port.js'
-import type { UserRegistrationRepositoryPort } from '../../ports/user/user-registration.repository.port.js'
 import { EmailAlreadyInUseError } from './register-with-password.errors.js'
 
 export interface RegisterWithPasswordUseCaseInput {
@@ -21,10 +22,13 @@ export interface RegisterWithPasswordUseCaseOutput {
 export class RegisterWithPasswordUseCase {
   constructor(
     private readonly idGenerator: Pick<IdGeneratorPort, 'generate'>,
-    private readonly userRepository: Pick<UserRepositoryPort, 'findByEmail'>,
+    private readonly accountRepository: Pick<
+      AccountRepositoryPort,
+      'findByEmail'
+    >,
     private readonly hash: Pick<PasswordHasherPort, 'hash'>,
-    private readonly userRegistrationRepository: Pick<
-      UserRegistrationRepositoryPort,
+    private readonly accountRegistrationRepository: Pick<
+      AccountRegistrationRepositoryPort,
       'createWithPassword'
     >,
   ) {}
@@ -32,34 +36,33 @@ export class RegisterWithPasswordUseCase {
   async execute(
     input: RegisterWithPasswordUseCaseInput,
   ): Promise<RegisterWithPasswordUseCaseOutput> {
-    const email = input.email.trim().toLowerCase()
-    const existingUser = await this.userRepository.findByEmail(email)
+    const email = AccountEmail.create(input.email)
 
-    if (existingUser) throw new EmailAlreadyInUseError()
+    const existing = await this.accountRepository.findByEmail(email.value)
+    if (existing) throw new EmailAlreadyInUseError()
 
     const id = this.idGenerator.generate()
+    const passwordHash = await this.hash.hash(input.password)
 
-    const user = User.create({
+    const account = Account.registerWithPassword({
       id,
-      email: input.email,
+      email: email.value,
       name: input.name,
+      passwordHash,
+      createdAt: new Date(),
     })
 
-    const hashedPassword = await this.hash.hash(input.password)
+    const snapshot = account.snapshot()
 
-    await this.userRegistrationRepository.createWithPassword({
-      user,
-      passwordCredential: {
-        userId: user.id,
-        passwordHash: hashedPassword,
-      },
+    await this.accountRegistrationRepository.createWithPassword({
+      account: snapshot,
     })
 
     return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      createdAt: user.createdAt,
+      id: snapshot.id,
+      email: snapshot.email,
+      name: snapshot.name,
+      createdAt: snapshot.createdAt,
     }
   }
 }
