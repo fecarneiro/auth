@@ -1,9 +1,17 @@
 import { InvalidCredentialsError } from '../../../application/use-cases/login-with-password/login-with-password.errors.js'
+import {
+  OAuthConnectionAlreadyExistsError,
+  OAuthConnectionNotFoundError,
+  OAuthEmailNotProvidedError,
+  OAuthEmailNotVerifiedError,
+  OAuthLinkedAccountNotFoundError,
+} from '../../../application/use-cases/oauth.errors.js'
 import { EmailAlreadyInUseError } from '../../../application/use-cases/register-with-password/register-with-password.errors.js'
 import {
   InvalidEmailError,
   InvalidNameError,
-} from '../../../domain/user.errors.js'
+  OAuthProviderAlreadyLinkedError,
+} from '../../../domain/account/account.errors.js'
 import { AppError } from './app-error.js'
 
 const httpStatusCode = {
@@ -30,6 +38,30 @@ export function mapErrorToHttp(err: unknown): AppError {
   }
 
   if (err instanceof EmailAlreadyInUseError) {
+    return new AppError(err.message, httpStatusCode.CONFLICT)
+  }
+
+  if (err instanceof OAuthConnectionNotFoundError) {
+    return new AppError(err.message, httpStatusCode.UNAUTHORIZED)
+  }
+
+  if (err instanceof OAuthLinkedAccountNotFoundError) {
+    return new AppError(err.message, httpStatusCode.NOT_FOUND)
+  }
+
+  if (err instanceof OAuthEmailNotProvidedError) {
+    return new AppError(err.message, httpStatusCode.BAD_REQUEST)
+  }
+
+  if (err instanceof OAuthEmailNotVerifiedError) {
+    return new AppError(err.message, httpStatusCode.BAD_REQUEST)
+  }
+
+  if (err instanceof OAuthConnectionAlreadyExistsError) {
+    return new AppError(err.message, httpStatusCode.CONFLICT)
+  }
+
+  if (err instanceof OAuthProviderAlreadyLinkedError) {
     return new AppError(err.message, httpStatusCode.CONFLICT)
   }
 

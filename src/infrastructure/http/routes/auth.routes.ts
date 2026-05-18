@@ -1,16 +1,24 @@
 import * as arctic from 'arctic'
 import type { Request, Response } from 'express'
 import { Router } from 'express'
+import type { LoginWithOAuthUseCase } from '../../../application/use-cases/login-with-oauth/login-with-oauth.use-case.js'
 import type { LoginWithPasswordUseCase } from '../../../application/use-cases/login-with-password/login-with-password.use-case.js'
 import type { LogoutUseCase } from '../../../application/use-cases/logout/logout.use-case.js'
+import type { RegisterWithOAuthUseCase } from '../../../application/use-cases/register-with-oauth/register-with-oauth.use-case.js'
 import type { RegisterWithPasswordUseCase } from '../../../application/use-cases/register-with-password/register-with-password.use-case.js'
-import { google } from '../../oauth/google-oauth-client.js'
+import {
+  createGoogleAuthorizationURL,
+  getGoogleIdentityFromAuthorizationCode,
+} from '../../oauth/google-oauth-client.js'
 import { AuthController } from '../controllers/auth.controller.js'
+import { cookieOptions } from '../cookie/cookie-options.js'
 
 export function createAuthRouter(
   registerUseCase: RegisterWithPasswordUseCase,
   loginUseCase: LoginWithPasswordUseCase,
   logoutUseCase: LogoutUseCase,
+  registerWithOAuthUseCase: RegisterWithOAuthUseCase,
+  loginWithOAuthUseCase: LoginWithOAuthUseCase,
 ) {
   const router = Router()
   const controller = new AuthController(
@@ -31,56 +39,76 @@ export function createAuthRouter(
     return controller.logout(req, res)
   })
 
-  router.get('/google', (_req: Request, res: Response) => {
-    const state = arctic.generateState()
-    const codeVerifier = arctic.generateCodeVerifier()
+  router.get('/google/login', (_req: Request, res: Response) => {
+    return startGoogleOAuthFlow(res, 'login')
+  })
 
-    const scopes = ['openid', 'profile', 'email']
-
-    const url = google.createAuthorizationURL(state, codeVerifier, scopes)
-
-    res.cookie('state', state, {
-      secure: true,
-      path: '/',
-      httpOnly: true,
-      maxAge: 60 * 10,
-    })
-
-    res.cookie('code_verifier', codeVerifier, {
-      secure: true,
-      path: '/',
-      httpOnly: true,
-      maxAge: 60 * 10,
-    })
-
-    return res.redirect(url.toString())
+  router.get('/google/register', (_req: Request, res: Response) => {
+    return startGoogleOAuthFlow(res, 'register')
   })
 
   router.get('/google/callback', async (req: Request, res: Response) => {
     const code = req.query.code
     const state = req.query.state
-    const storedState = req.cookies.state ?? null
-    const storedCodeVerifier = req.cookies.code_verifier ?? null
+    const storedState = req.cookies.oauth_state ?? null
+    const storedCodeVerifier = req.cookies.oauth_code_verifier ?? null
+    const intent = req.cookies.oauth_intent ?? null
 
     if (
       typeof code !== 'string' ||
       typeof storedState !== 'string' ||
       state !== storedState ||
-      typeof storedCodeVerifier !== 'string'
+      typeof storedCodeVerifier !== 'string' ||
+      !isOAuthIntent(intent)
     ) {
       return res.status(400).json({ message: 'Invalid request' })
     }
 
-    const tokens = await google.validateAuthorizationCode(
+    const identity = await getGoogleIdentityFromAuthorizationCode({
       code,
-      storedCodeVerifier,
-    )
-    const idToken = tokens.idToken()
-    const _claims = arctic.decodeIdToken(idToken)
-    console.log(_claims)
+      codeVerifier: storedCodeVerifier,
+    })
 
-    return res.status(200).json({ message: 'Authorized' })
+    const result =
+      intent === 'login'
+        ? await loginWithOAuthUseCase.execute({ identity })
+        : await registerWithOAuthUseCase.execute({ identity })
+
+    res.clearCookie('oauth_state')
+    res.clearCookie('oauth_code_verifier')
+    res.clearCookie('oauth_intent')
+    res.cookie('sid', result.sessionId, cookieOptions)
+
+    return res.status(200).json(result.account)
   })
 
   return router
+}
+
+type OAuthIntent = 'login' | 'register'
+
+const oauthCookieOptions = {
+  ...cookieOptions,
+  maxAge: 60 * 10 * 1000,
+}
+
+function startGoogleOAuthFlow(res: Response, intent: OAuthIntent) {
+  const state = arctic.generateState()
+  const codeVerifier = arctic.generateCodeVerifier()
+  const scopes = ['openid', 'profile', 'email']
+  const url = createGoogleAuthorizationURL({
+    state,
+    codeVerifier,
+    scopes,
+  })
+
+  res.cookie('oauth_state', state, oauthCookieOptions)
+  res.cookie('oauth_code_verifier', codeVerifier, oauthCookieOptions)
+  res.cookie('oauth_intent', intent, oauthCookieOptions)
+
+  return res.redirect(url.toString())
+}
+
+function isOAuthIntent(value: unknown): value is OAuthIntent {
+  return value === 'login' || value === 'register'
 }

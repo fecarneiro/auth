@@ -34,11 +34,11 @@ export class AuthController {
     }
 
     const session = await this.loginUseCase.execute({ email, password })
-    const { user, sessionId } = session
+    const { account, sessionId } = session
 
     res.cookie('sid', sessionId, cookieOptions)
 
-    return res.status(200).json(user)
+    return res.status(200).json(account)
   }
 
   logout = async (req: Request, res: Response) => {

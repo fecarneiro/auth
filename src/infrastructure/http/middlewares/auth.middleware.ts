@@ -6,7 +6,7 @@ import type {
 
 declare module 'express' {
   interface Request {
-    user?: Pick<AuthSession, 'userId'>
+    account?: Pick<AuthSession, 'accountId'>
   }
 }
 
@@ -26,7 +26,7 @@ export class AuthMiddleware {
       return
     }
 
-    req.user = session
+    req.account = session
     next()
   }
 }
