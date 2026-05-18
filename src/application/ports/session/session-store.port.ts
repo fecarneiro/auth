@@ -1,6 +1,6 @@
 export interface AuthSession {
   id: string
-  userId: string
+  accountId: string
 }
 
 export interface SessionStorePort {
