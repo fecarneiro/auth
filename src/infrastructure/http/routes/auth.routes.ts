@@ -1,6 +1,7 @@
 import * as arctic from 'arctic'
-import type { Request, Response } from 'express'
+import type { Request, RequestHandler, Response } from 'express'
 import { Router } from 'express'
+import type { GetAuthenticatedAccountUseCase } from '../../../application/use-cases/get-authenticated-account/get-authenticated-account.use-case.js'
 import type { LoginWithOAuthUseCase } from '../../../application/use-cases/login-with-oauth/login-with-oauth.use-case.js'
 import type { LoginWithPasswordUseCase } from '../../../application/use-cases/login-with-password/login-with-password.use-case.js'
 import type { LogoutUseCase } from '../../../application/use-cases/logout/logout.use-case.js'
@@ -19,12 +20,15 @@ export function createAuthRouter(
   logoutUseCase: LogoutUseCase,
   registerWithOAuthUseCase: RegisterWithOAuthUseCase,
   loginWithOAuthUseCase: LoginWithOAuthUseCase,
+  getAuthenticatedAccountUseCase: GetAuthenticatedAccountUseCase,
+  authMiddleware: RequestHandler,
 ) {
   const router = Router()
   const controller = new AuthController(
     registerUseCase,
     loginUseCase,
     logoutUseCase,
+    getAuthenticatedAccountUseCase,
   )
 
   router.post('/register', (req: Request, res: Response) => {
@@ -37,6 +41,10 @@ export function createAuthRouter(
 
   router.post('/logout', (req: Request, res: Response) => {
     return controller.logout(req, res)
+  })
+
+  router.get('/me', authMiddleware, (req: Request, res: Response) => {
+    return controller.me(req, res)
   })
 
   router.get('/google/login', (_req: Request, res: Response) => {

@@ -1,3 +1,4 @@
+import { AuthenticatedAccountNotFoundError } from '../../../application/use-cases/get-authenticated-account/get-authenticated-account.errors.js'
 import {
   OAuthConnectionNotFoundError,
   OAuthLinkedAccountNotFoundError,
@@ -36,6 +37,10 @@ export function mapErrorToHttp(err: unknown): AppError {
   }
 
   if (err instanceof InvalidCredentialsError) {
+    return new AppError(err.message, httpStatusCode.UNAUTHORIZED)
+  }
+
+  if (err instanceof AuthenticatedAccountNotFoundError) {
     return new AppError(err.message, httpStatusCode.UNAUTHORIZED)
   }
 

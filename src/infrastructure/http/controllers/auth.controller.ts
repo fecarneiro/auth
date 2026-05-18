@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express'
+import type { GetAuthenticatedAccountUseCase } from '../../../application/use-cases/get-authenticated-account/get-authenticated-account.use-case.js'
 import type { LoginWithPasswordUseCase } from '../../../application/use-cases/login-with-password/login-with-password.use-case.js'
 import type { LogoutUseCase } from '../../../application/use-cases/logout/logout.use-case.js'
 import type { RegisterWithPasswordUseCase } from '../../../application/use-cases/register-with-password/register-with-password.use-case.js'
@@ -10,6 +11,7 @@ export class AuthController {
     private readonly registerUseCase: RegisterWithPasswordUseCase,
     private readonly loginUseCase: LoginWithPasswordUseCase,
     private readonly logoutUseCase: LogoutUseCase,
+    private readonly getAuthenticatedAccountUseCase: GetAuthenticatedAccountUseCase,
   ) {}
 
   register = async (req: Request, res: Response) => {
@@ -50,5 +52,19 @@ export class AuthController {
     res.clearCookie('sid')
 
     return res.status(200).json({ message: 'OK' })
+  }
+
+  me = async (req: Request, res: Response) => {
+    const accountId = req.account?.accountId
+
+    if (!accountId) {
+      throw new AppError('Unauthorized', 401)
+    }
+
+    const account = await this.getAuthenticatedAccountUseCase.execute({
+      accountId,
+    })
+
+    return res.status(200).json(account)
   }
 }
