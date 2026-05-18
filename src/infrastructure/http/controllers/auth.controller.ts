@@ -5,6 +5,10 @@ import type { LogoutUseCase } from '../../../application/use-cases/logout/logout
 import type { RegisterWithPasswordUseCase } from '../../../application/use-cases/register-with-password/register-with-password.use-case.js'
 import { cookieOptions } from '../cookie/cookie-options.js'
 import { AppError } from '../errors/app-error.js'
+import {
+  loginBodySchema,
+  registerBodySchema,
+} from '../validation/auth.schemas.js'
 
 export class AuthController {
   constructor(
@@ -15,10 +19,7 @@ export class AuthController {
   ) {}
 
   register = async (req: Request, res: Response) => {
-    const { email, name, password } = req.body
-    if (!email || !name || !password) {
-      throw new AppError('Email, name and password are required', 400)
-    }
+    const { email, name, password } = registerBodySchema.parse(req.body)
 
     const result = await this.registerUseCase.execute({
       email,
@@ -29,11 +30,7 @@ export class AuthController {
   }
 
   login = async (req: Request, res: Response) => {
-    const { email, password } = req.body
-
-    if (!email || !password) {
-      throw new AppError('Email and password are required', 400)
-    }
+    const { email, password } = loginBodySchema.parse(req.body)
 
     const session = await this.loginUseCase.execute({ email, password })
     const { account, sessionId } = session

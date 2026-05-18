@@ -1,3 +1,4 @@
+import { ZodError } from 'zod'
 import { AuthenticatedAccountNotFoundError } from '../../../application/use-cases/get-authenticated-account/get-authenticated-account.errors.js'
 import {
   OAuthConnectionNotFoundError,
@@ -70,6 +71,14 @@ export function mapErrorToHttp(err: unknown): AppError {
 
   if (err instanceof OAuthProviderAlreadyLinkedError) {
     return new AppError(err.message, httpStatusCode.CONFLICT)
+  }
+
+  if (err instanceof ZodError) {
+    const fields = err.issues.map((issue) => issue.path.join('.')).join(', ')
+    return new AppError(
+      `Invalid request body: ${fields}`,
+      httpStatusCode.BAD_REQUEST,
+    )
   }
 
   if (err instanceof AppError) {
