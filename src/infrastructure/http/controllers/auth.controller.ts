@@ -6,7 +6,9 @@ import type { RegisterWithPasswordUseCase } from '../../../application/use-cases
 import { cookieOptions } from '../cookie/cookie-options.js'
 import { AppError } from '../errors/app-error.js'
 import {
+  type LoginRequestBody,
   loginBodySchema,
+  type RegisterRequestBody,
   registerBodySchema,
 } from '../validation/auth.schemas.js'
 
@@ -19,20 +21,16 @@ export class AuthController {
   ) {}
 
   register = async (req: Request, res: Response) => {
-    const { email, name, password } = registerBodySchema.parse(req.body)
+    const body: RegisterRequestBody = registerBodySchema.parse(req.body)
 
-    const result = await this.registerUseCase.execute({
-      email,
-      name,
-      password,
-    })
+    const result = await this.registerUseCase.execute(body)
     return res.status(201).json(result)
   }
 
   login = async (req: Request, res: Response) => {
-    const { email, password } = loginBodySchema.parse(req.body)
+    const credentials: LoginRequestBody = loginBodySchema.parse(req.body)
 
-    const session = await this.loginUseCase.execute({ email, password })
+    const session = await this.loginUseCase.execute(credentials)
     const { account, sessionId } = session
 
     res.cookie('sid', sessionId, cookieOptions)
