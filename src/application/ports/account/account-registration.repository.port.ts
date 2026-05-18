@@ -1,4 +1,4 @@
-import type { AccountSnapshot } from '../../../domain/account/account.entity.js'
+import type { AccountSnapshot } from '../../../domain/account.entity.js'
 import type { OAuthConnectionRecord } from '../oauth/oauth-connection.repository.port.js'
 
 export interface AccountRegistrationRepositoryPort {

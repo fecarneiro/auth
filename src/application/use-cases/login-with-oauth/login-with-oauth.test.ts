@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Account } from '../../../domain/account/account.entity.js'
+import { Account } from '../../../domain/account.entity.js'
 import type { AccountRepositoryPort } from '../../ports/account/account.repository.port.js'
 import type {
   OAuthConnectionRecord,

@@ -1,4 +1,4 @@
-import type { Account } from '../../../domain/account/account.entity.js'
+import type { Account } from '../../../domain/account.entity.js'
 
 export interface AccountRepositoryPort {
   findByEmail(email: string): Promise<Account | null>

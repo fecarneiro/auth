@@ -1,4 +1,4 @@
-import { Account } from '../../../domain/account/account.entity.js'
+import { Account } from '../../../domain/account.entity.js'
 import type { AccountRepositoryPort } from '../../ports/account/account.repository.port.js'
 import type { AccountRegistrationRepositoryPort } from '../../ports/account/account-registration.repository.port.js'
 import type { OAuthConnectionRepositoryPort } from '../../ports/oauth/oauth-connection.repository.port.js'

@@ -11,7 +11,7 @@ import {
   InvalidEmailError,
   InvalidNameError,
   OAuthProviderAlreadyLinkedError,
-} from '../../../domain/account/account.errors.js'
+} from '../../../domain/account.errors.js'
 import { AppError } from './app-error.js'
 
 const httpStatusCode = {

@@ -1,5 +1,5 @@
-import { Account } from '../../../domain/account/account.entity.js'
-import { AccountEmail } from '../../../domain/account/account-email.vo.js'
+import { Account } from '../../../domain/account.entity.js'
+import { AccountEmail } from '../../../domain/account-email.vo.js'
 import type { AccountRepositoryPort } from '../../ports/account/account.repository.port.js'
 import type { AccountRegistrationRepositoryPort } from '../../ports/account/account-registration.repository.port.js'
 import type { PasswordHasherPort } from '../../ports/password/password-hasher.port.js'
