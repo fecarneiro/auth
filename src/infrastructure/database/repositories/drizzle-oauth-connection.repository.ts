@@ -3,19 +3,28 @@ import type {
   OAuthConnectionRecord,
   OAuthConnectionRepositoryPort,
 } from '../../../application/ports/oauth/oauth-connection.repository.port.js'
+import { OAuthConnectionAlreadyExistsError } from '../../../application/use-cases/link-oauth-provider/link-oauth-provider.errors.js'
 import { db } from '../db.js'
+import { isUniqueViolation } from '../postgres-errors.js'
 import { accountOAuthConnectionsTable } from '../schemas/account-oauth-connections.schema.js'
 
 export class DrizzleOAuthConnectionRepository
   implements OAuthConnectionRepositoryPort
 {
   async save(connection: OAuthConnectionRecord): Promise<void> {
-    await db.insert(accountOAuthConnectionsTable).values({
-      id: connection.id,
-      accountId: connection.accountId,
-      provider: connection.provider,
-      providerUserId: connection.providerUserId,
-    })
+    try {
+      await db.insert(accountOAuthConnectionsTable).values({
+        id: connection.id,
+        accountId: connection.accountId,
+        provider: connection.provider,
+        providerUserId: connection.providerUserId,
+      })
+    } catch (error) {
+      if (isUniqueViolation(error)) {
+        throw new OAuthConnectionAlreadyExistsError()
+      }
+      throw error
+    }
   }
 
   async findByProviderIdentity(input: {
