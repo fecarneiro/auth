@@ -1,10 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { User } from '../../../domain/user.entity.js'
-import type { PasswordCredentialRepositoryPort } from '../../ports/password/password-credential.repository.port.js'
+import { Account } from '../../../domain/account/account.entity.js'
+import type { AccountRepositoryPort } from '../../ports/account/account.repository.port.js'
 import type { PasswordHasherPort } from '../../ports/password/password-hasher.port.js'
 import type { SessionStorePort } from '../../ports/session/session-store.port.js'
 import type { IdGeneratorPort } from '../../ports/shared/id-generator.port.js'
-import type { UserRepositoryPort } from '../../ports/user/user.repository.port.js'
 import { InvalidCredentialsError } from './login-with-password.errors.js'
 import {
   type LoginWithPasswordInput,
@@ -12,25 +11,17 @@ import {
 } from './login-with-password.use-case.js'
 
 function makeSut() {
-  const user = User.restore({
-    id: 'user-1',
+  const account = Account.restore({
+    id: 'account-1',
     email: 'user@example.com',
     name: 'User Example',
     createdAt: new Date('2026-01-01'),
+    passwordHash: 'hashed-password',
+    oauthConnections: [],
   })
 
-  const userRepository: Pick<UserRepositoryPort, 'findByEmail'> = {
-    findByEmail: vi.fn(async () => user),
-  }
-
-  const passwordRepository: Pick<
-    PasswordCredentialRepositoryPort,
-    'findByUserId'
-  > = {
-    findByUserId: vi.fn(async () => ({
-      userId: 'user-1',
-      passwordHash: 'hashed-password',
-    })),
+  const accountRepository: Pick<AccountRepositoryPort, 'findByEmail'> = {
+    findByEmail: vi.fn(async () => account),
   }
 
   const hash: Pick<PasswordHasherPort, 'compare'> = {
@@ -46,8 +37,7 @@ function makeSut() {
   }
 
   const sut = new LoginWithPasswordUseCase(
-    userRepository,
-    passwordRepository,
+    accountRepository,
     hash,
     randomSessionIdGenerator,
     sessionStore,
@@ -55,9 +45,8 @@ function makeSut() {
 
   return {
     sut,
-    user,
-    userRepository,
-    passwordRepository,
+    account,
+    accountRepository,
     hash,
     sessionStore,
   }
@@ -75,8 +64,8 @@ describe('LoginUseCase', () => {
     const output = await sut.execute(input)
 
     expect(output).toEqual({
-      user: {
-        id: 'user-1',
+      account: {
+        id: 'account-1',
         email: 'user@example.com',
         name: 'User Example',
       },
@@ -85,7 +74,7 @@ describe('LoginUseCase', () => {
 
     expect(sessionStore.create).toHaveBeenCalledWith({
       id: 'session-id',
-      userId: 'user-1',
+      accountId: 'account-1',
     })
   })
 
@@ -104,10 +93,9 @@ describe('LoginUseCase', () => {
   })
 
   it('should fail login with unknown email', async () => {
-    const { sut, userRepository, passwordRepository, hash, sessionStore } =
-      makeSut()
+    const { sut, accountRepository, hash, sessionStore } = makeSut()
 
-    vi.mocked(userRepository.findByEmail).mockResolvedValueOnce(null)
+    vi.mocked(accountRepository.findByEmail).mockResolvedValueOnce(null)
 
     const input: LoginWithPasswordInput = {
       email: 'invalid@example.com',
@@ -116,30 +104,42 @@ describe('LoginUseCase', () => {
 
     await expect(sut.execute(input)).rejects.toThrow(InvalidCredentialsError)
     expect(sessionStore.create).not.toHaveBeenCalled()
-    expect(passwordRepository.findByUserId).not.toHaveBeenCalled()
     expect(hash.compare).not.toHaveBeenCalled()
   })
 
-  it('should fail login when password credential is not found', async () => {
-    const { sut, userRepository, passwordRepository, hash, sessionStore } =
-      makeSut()
+  it('should fail login when account has no password (OAuth-only)', async () => {
+    const { sut, accountRepository, hash, sessionStore } = makeSut()
 
-    vi.mocked(passwordRepository.findByUserId).mockResolvedValueOnce(null)
+    const oauthOnlyAccount = Account.restore({
+      id: 'account-1',
+      email: 'user@example.com',
+      name: 'User Example',
+      createdAt: new Date('2026-01-01'),
+      passwordHash: null,
+      oauthConnections: [
+        {
+          provider: 'google',
+          providerUserId: 'google-1',
+        },
+      ],
+    })
+
+    vi.mocked(accountRepository.findByEmail).mockResolvedValueOnce(
+      oauthOnlyAccount,
+    )
+
     const input: LoginWithPasswordInput = {
       email: 'user@example.com',
       password: 'plain-password',
     }
 
     await expect(sut.execute(input)).rejects.toThrow(InvalidCredentialsError)
-
-    expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com')
-    expect(passwordRepository.findByUserId).toHaveBeenCalledWith('user-1')
     expect(hash.compare).not.toHaveBeenCalled()
     expect(sessionStore.create).not.toHaveBeenCalled()
   })
 
-  it('should normalize email before finding user', async () => {
-    const { sut, userRepository } = makeSut()
+  it('should normalize email before finding account', async () => {
+    const { sut, accountRepository } = makeSut()
 
     const input: LoginWithPasswordInput = {
       email: 'useR@example.COM',
@@ -148,6 +148,8 @@ describe('LoginUseCase', () => {
 
     await sut.execute(input)
 
-    expect(userRepository.findByEmail).toHaveBeenCalledWith('user@example.com')
+    expect(accountRepository.findByEmail).toHaveBeenCalledWith(
+      'user@example.com',
+    )
   })
 })

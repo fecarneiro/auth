@@ -1,8 +1,7 @@
-import type { PasswordCredentialRepositoryPort } from '../../ports/password/password-credential.repository.port.js'
+import type { AccountRepositoryPort } from '../../ports/account/account.repository.port.js'
 import type { PasswordHasherPort } from '../../ports/password/password-hasher.port.js'
 import type { SessionStorePort } from '../../ports/session/session-store.port.js'
 import type { IdGeneratorPort } from '../../ports/shared/id-generator.port.js'
-import type { UserRepositoryPort } from '../../ports/user/user.repository.port.js'
 import { InvalidCredentialsError } from './login-with-password.errors.js'
 
 export interface LoginWithPasswordInput {
@@ -11,7 +10,7 @@ export interface LoginWithPasswordInput {
 }
 
 export interface LoginWithPasswordOutput {
-  user: {
+  account: {
     id: string
     email: string
     name: string
@@ -21,10 +20,9 @@ export interface LoginWithPasswordOutput {
 
 export class LoginWithPasswordUseCase {
   constructor(
-    private readonly userRepository: Pick<UserRepositoryPort, 'findByEmail'>,
-    private readonly passwordRepository: Pick<
-      PasswordCredentialRepositoryPort,
-      'findByUserId'
+    private readonly accountRepository: Pick<
+      AccountRepositoryPort,
+      'findByEmail'
     >,
     private readonly hash: Pick<PasswordHasherPort, 'compare'>,
     private readonly sessionIdGenerator: IdGeneratorPort,
@@ -35,17 +33,17 @@ export class LoginWithPasswordUseCase {
     input: LoginWithPasswordInput,
   ): Promise<LoginWithPasswordOutput> {
     const email = input.email.trim().toLowerCase()
-    const user = await this.userRepository.findByEmail(email)
+    const account = await this.accountRepository.findByEmail(email)
 
-    if (!user) throw new InvalidCredentialsError()
+    if (!account) throw new InvalidCredentialsError()
 
-    const password = await this.passwordRepository.findByUserId(user.id)
+    const snapshot = account.snapshot()
 
-    if (!password) throw new InvalidCredentialsError()
+    if (snapshot.passwordHash === null) throw new InvalidCredentialsError()
 
     const passwordMatches = await this.hash.compare(
       input.password,
-      password.passwordHash,
+      snapshot.passwordHash,
     )
 
     if (!passwordMatches) throw new InvalidCredentialsError()
@@ -54,14 +52,14 @@ export class LoginWithPasswordUseCase {
 
     await this.sessionStore.create({
       id: sessionId,
-      userId: user.id,
+      accountId: snapshot.id,
     })
 
     return {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
+      account: {
+        id: snapshot.id,
+        email: snapshot.email,
+        name: snapshot.name,
       },
       sessionId: sessionId,
     }

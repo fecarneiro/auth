@@ -1,21 +1,19 @@
-import type { OAuthAccountRepositoryPort } from '../../ports/oauth/oauth-account.repository.port.js'
-import type { OAuthClientPort } from '../../ports/oauth/oauth-client.port.js'
+import type { AccountRepositoryPort } from '../../ports/account/account.repository.port.js'
+import type { OAuthConnectionRepositoryPort } from '../../ports/oauth/oauth-connection.repository.port.js'
+import type { OAuthIdentity } from '../../ports/oauth/oauth-identity.js'
 import type { SessionStorePort } from '../../ports/session/session-store.port.js'
 import type { IdGeneratorPort } from '../../ports/shared/id-generator.port.js'
-import type { UserRepositoryPort } from '../../ports/user/user.repository.port.js'
 import {
-  OAuthEmailNotProvidedError,
-  OAuthEmailNotVerifiedError,
-  OAuthLinkedUserNotFoundError,
+  OAuthConnectionNotFoundError,
+  OAuthLinkedAccountNotFoundError,
 } from './login-with-oauth.errors.js'
 
 export interface LoginWithOAuthUseCaseInput {
-  code: string
-  codeVerifier: string
+  identity: OAuthIdentity
 }
 
 export interface LoginWithOAuthUseCaseOutput {
-  user: {
+  account: {
     id: string
     email: string
     name: string
@@ -25,12 +23,8 @@ export interface LoginWithOAuthUseCaseOutput {
 
 export class LoginWithOAuthUseCase {
   constructor(
-    readonly oauthClientPort: OAuthClientPort,
-    readonly oauthAccountRepository: OAuthAccountRepositoryPort,
-    readonly userRepository: Pick<
-      UserRepositoryPort,
-      'findByEmail' | 'findById'
-    >,
+    readonly oauthConnectionRepository: OAuthConnectionRepositoryPort,
+    readonly accountRepository: Pick<AccountRepositoryPort, 'findById'>,
     private readonly sessionIdGenerator: IdGeneratorPort,
 
     readonly sessionStore: Pick<SessionStorePort, 'create'>,
@@ -39,65 +33,42 @@ export class LoginWithOAuthUseCase {
   async execute(
     input: LoginWithOAuthUseCaseInput,
   ): Promise<LoginWithOAuthUseCaseOutput> {
-    const oauthIdentity =
-      await this.oauthClientPort.getIdentityFromAuthorizationCode(input)
+    const { provider, providerUserId } = input.identity
 
-    const { provider, providerUserId, email, emailVerified } = oauthIdentity
-
-    const oauthAccount =
-      await this.oauthAccountRepository.findByProviderIdentity({
+    const oauthConnection =
+      await this.oauthConnectionRepository.findByProviderIdentity({
         provider,
         providerUserId,
       })
 
-    if (oauthAccount) {
-      const { userId } = oauthAccount
-
-      const user = await this.userRepository.findById(userId)
-
-      if (!user) {
-        throw new OAuthLinkedUserNotFoundError()
-      }
-
-      const sessionId = this.sessionIdGenerator.generate()
-
-      await this.sessionStore.create({
-        id: sessionId,
-        userId,
-      })
-
-      return {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        },
-        sessionId: sessionId,
-      }
+    if (!oauthConnection) {
+      throw new OAuthConnectionNotFoundError()
     }
 
-    if (!email) {
-      throw new OAuthEmailNotProvidedError()
+    const { accountId } = oauthConnection
+
+    const account = await this.accountRepository.findById(accountId)
+
+    if (!account) {
+      throw new OAuthLinkedAccountNotFoundError()
     }
 
-    if (emailVerified !== true) {
-      throw new OAuthEmailNotVerifiedError()
+    const snapshot = account.snapshot()
+
+    const sessionId = this.sessionIdGenerator.generate()
+
+    await this.sessionStore.create({
+      id: sessionId,
+      accountId,
+    })
+
+    return {
+      account: {
+        id: snapshot.id,
+        email: snapshot.email,
+        name: snapshot.name,
+      },
+      sessionId: sessionId,
     }
-
-    // Do not existis
-
-    /**
-     * 2. Busca conta OAuth por provider + providerUserId
-     * 3. Se existir:
-     *    - cria sessão
-     *    - retorna usuário/sessão
-     * 4. Se não existir:
-     *    - exige email verificado
-     *    - busca usuário por email
-     *    - se não existir, cria usuário
-     *    - cria vínculo OAuth
-     *    - cria sessão
-     */
-    throw new Error('Login with OAuth is not implemented yet')
   }
 }
