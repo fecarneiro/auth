@@ -20,9 +20,8 @@ Technical details such as HTTP routing, database access, password hashing, OAuth
 | --- | --- |
 | Account registration with password | Creates an account and stores a password credential securely. |
 | Account login with password | Validates account credentials and creates a session. |
-| OAuth registration | Creates an account from a verified OAuth identity. |
-| OAuth login | Logs in an account through an existing OAuth connection. |
-| OAuth account linking | Links an OAuth provider to an existing account when the provider email is verified. |
+| Continue with Google | Single OAuth entry point: logs in a known identity, registers it on first contact. |
+| OAuth account linking | Connects an OAuth provider to the account the caller is authenticated as. |
 | Session management | Issues and invalidates server-side sessions. |
 | Password hashing | Stores password hashes instead of plain text passwords. |
 | Persistent authentication methods | Stores password credentials and OAuth connections separately from account data. |
@@ -86,8 +85,8 @@ Examples:
 
 * Register account with password
 * Login with password
-* Register with OAuth
-* Login with OAuth
+* Authenticate with OAuth (login or first-contact register)
+* Link an OAuth provider to an account
 * Logout
 * Create session
 * Persist account credentials
@@ -116,12 +115,13 @@ Some decisions in this project are intentionally simple to keep the architecture
 | `Account` is the aggregate root                               | Authentication revolves around one internal identity that may have multiple authentication methods.                                              |
 | Password credentials are stored separately                    | A password is only one authentication method. Its absence should not affect the account identity model.                                          |
 | OAuth connections are stored separately                       | OAuth provider identities are external login methods linked to an internal account.                                                              |
-| OAuth provider email must be verified before linking by email | Linking an OAuth identity to an existing account by email is only safe when the provider confirms ownership of that email.                       |
-| Login with OAuth does not auto-register                       | Login and registration have different semantics. Login requires an existing OAuth connection.                                                    |
-| OAuth registration links a verified email to an existing account | If the provider verifies the email and an account with that email already exists, registration links the OAuth identity to that account and signs in, instead of failing. Unverified or unknown emails create a new account. |
+| OAuth identities are never linked implicitly                  | An OAuth identity is connected to an existing account only through an explicit, authenticated request. A matching verified provider email is not treated as proof of ownership of a pre-existing local account, which closes an account pre-hijacking vector. |
+| A single "Continue with Google" entry point                   | At the OAuth callback there is no meaningful login/register distinction until the identity is looked up. One use case logs in known identities and registers them on first contact.                                          |
+| An email collision rejects the OAuth sign-up                  | If a verified provider email already belongs to an account, the callback responds 409. The user signs in with the original method and links the provider explicitly.                                                          |
 | No explicit inbound ports                                     | Use cases already expose clear application APIs through their `execute` methods. Adding inbound interfaces now would duplicate contracts.        |
 | HTTP controllers are inbound adapters                         | Controllers translate Express requests into use case inputs and HTTP responses. Express remains outside the application core.                    |
 | Manual composition is used as the composition root            | Dependencies are wired explicitly instead of using a DI container. The current dependency graph is small enough to keep object creation visible. |
+| Sessions use an absolute TTL                                  | A session is valid for a fixed window from login (30 min) and is not refreshed on activity. Lifetime stays bounded and predictable, capping how long a stolen session is useful. Sliding expiration with an absolute cap is a documented future evolution. |
 
 ## Project Structure
 
@@ -141,8 +141,9 @@ src/
 │   └── use-cases/
 │       ├── register-with-password/
 │       ├── login-with-password/
-│       ├── register-with-oauth/
-│       ├── login-with-oauth/
+│       ├── authenticate-with-oauth/
+│       ├── link-oauth-provider/
+│       ├── get-authenticated-account/
 │       └── logout/
 ├── infrastructure/
 │   ├── composition/
@@ -211,10 +212,33 @@ Important constraints:
 | POST   | `/auth/register`        | Register an account with password    |
 | POST   | `/auth/login`           | Login with email and password        |
 | POST   | `/auth/logout`          | Logout the current session           |
-| GET    | `/auth/google/register` | Start Google OAuth registration flow |
-| GET    | `/auth/google/login`    | Start Google OAuth login flow        |
+| GET    | `/auth/me`              | Get the authenticated account        |
+| GET    | `/auth/google`          | Continue with Google (login or register) |
+| GET    | `/auth/google/link`     | Link Google to the authenticated account |
 | GET    | `/auth/google/callback` | Handle Google OAuth callback         |
 | GET    | `/health`               | Health check                         |
+
+### OAuth flows
+
+Both Google endpoints are browser redirect flows and depend on the user
+completing Google's consent screen.
+
+**Continue with Google (`GET /auth/google`)** — a single entry point:
+
+* a known Google identity logs in;
+* an unknown identity with a new email registers a new account;
+* an unknown identity whose email already belongs to an account is rejected
+  with `409` (identities are never linked implicitly).
+
+**Link a provider (`GET /auth/google/link`)** — connects Google to an
+existing account:
+
+* the user must already be authenticated; a valid session is required, so
+  sign in with the original method first, then start the link flow;
+* the authenticated session identifies the target account, so the Google
+  email does **not** need to match the account email;
+* a Google identity already connected to another account is rejected with
+  `409`.
 
 ## Getting Started
 
@@ -299,7 +323,9 @@ This project follows basic security practices for authentication workflows:
 * Passwords are never stored in plain text.
 * Password hashing is handled through a dedicated application port.
 * Authentication errors avoid revealing whether the email or password is incorrect.
-* OAuth registration/linking requires a verified provider email.
+* OAuth sign-up requires a verified provider email; linking to an existing account requires an authenticated session, not email matching.
+* The OAuth flow uses PKCE and a `state` parameter validated at the callback, protecting against CSRF and authorization-code interception.
+* Sessions have an absolute server-side TTL; a session cannot be kept alive indefinitely by activity.
 * Sessions are issued server-side and stored outside the domain model.
 * Domain and application rules are kept independent from HTTP, database, OAuth provider SDKs, and cryptography details.
 * Environment variables are used for runtime configuration.
@@ -311,6 +337,7 @@ The current implementation does not include:
 * Email verification for password registration.
 * Password reset flow.
 * Refresh tokens.
+* Session revocation (logout from all devices) and sliding expiration.
 * Rate limiting.
 * CSRF protection.
 * Account deletion.
