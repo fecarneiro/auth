@@ -6,7 +6,7 @@ import {
 } from '../config/session.config.js'
 import { type RedisClient, RedisSessionStore } from './redis-session-store.js'
 
-const userId = '019e16fe-4930-7444-a255-9d19fb8afe5a'
+const accountId = '019e16fe-4930-7444-a255-9d19fb8afe5a'
 const sessionId =
   '19f78f104e7059fcb6f9e3f0d17a9412a95754e00729801bebee5997340196e9'
 const ttl = SESSION_TTL_SECONDS
@@ -14,7 +14,7 @@ const prefix = SESSION_PREFIX
 
 const mockSession: AuthSession = {
   id: sessionId,
-  userId: userId,
+  accountId,
 }
 
 function makeSut() {
@@ -33,7 +33,7 @@ describe('Redis Session Store', () => {
 
     await sut.create({
       id: sessionId,
-      userId,
+      accountId,
     })
 
     expect(fakeClient.setEx).toHaveBeenCalledWith(
