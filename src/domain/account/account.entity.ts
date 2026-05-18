@@ -12,8 +12,6 @@ export type OAuthProvider = (typeof oauthProviders)[number]
 export type OAuthConnection = {
   provider: OAuthProvider
   providerUserId: string
-  email: string
-  emailVerified: boolean
 }
 
 type RegisterWithPasswordProps = {
